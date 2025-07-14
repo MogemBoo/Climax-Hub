@@ -1,0 +1,473 @@
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.fullscreen-wrapper {
+  position: relative;
+  min-height: 100%;
+  color: white;
+  background: #000;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+.fullscreen-wrapper::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30vh;
+  background: linear-gradient(to bottom, transparent, #000);
+  z-index: 0;
+}
+
+.background-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px) brightness(0.3);
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 3rem;
+  gap: 3rem;
+}
+
+.poster {
+  width: 300px;
+  height: 450px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.info {
+  max-width: 600px;
+}
+
+h1 {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.sub {
+  margin: 0.5rem 0;
+  color: #ccc;
+}
+
+.desc {
+  margin-top: 1rem;
+  line-height: 1.6;
+}
+
+.tags {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.7rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+}
+
+.loader {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+
+.extras {
+  position: relative;
+  z-index: 1;
+  padding: 2rem 3rem;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  margin: 2rem 0 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  display: inline-block;
+  padding-bottom: 0.3rem;
+}
+
+.people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1.5rem;
+}
+
+.person-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.7rem;
+  border-radius: 0.8rem;
+  text-align: center;
+}
+
+.person-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.person-card h4 {
+  font-size: 1rem;
+  margin: 0.2rem 0 0.1rem;
+}
+
+.person-card .role {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+
+.rating-btn {
+  position: relative;
+  top: 20px;
+  left: 1355px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffc107;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.rating-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+
+.rating-popup {
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  width: 240px;
+  animation: fadeIn 0.3s ease;
+}
+
+.rating-card h3 {
+  margin-top: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  text-align: center;
+}
+.watchlist-btn {
+  position: relative;
+  top: 70px;
+  left: 1240px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffc107;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.watchlist-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  gap: 4px;
+}
+
+.stars input {
+  display: none;
+}
+
+.stars label {
+  cursor: pointer;
+}
+
+.rating-card p {
+  text-align: center;
+  color: #ccc;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.comment-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  color: #eee;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  resize: none;
+}
+
+.submit-rating-btn {
+  margin-top: 0.8rem;
+  background: #ffc107;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border-radius: 1rem;
+  cursor: pointer;
+  color: black;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+
+.submit-rating-btn:hover {
+  background: #e0a800;
+}
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;  /* align top edges */
+  justify-content: flex-start; /* align content to left, no centering */
+  padding: 3rem;
+  gap: 1rem;
+  min-height: 480px; /* same vertical height */
+}
+
+/* Poster container left, fixed width */
+.left-section {
+  flex: 0 0 300px; /* fixed width: 300px */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Poster size stays 300x450 */
+.poster-large {
+  width: 350px;
+  height: 450px; 
+  object-fit: cover;
+  border-radius: 0.8rem;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.info {
+  margin-top: 1rem;
+  max-width: 300px; /* same width as poster */
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 0.8rem;
+  color: white;
+}
+
+
+.right-section {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  transform: translateX(-150px);
+  min-height: 300px;
+  max-width: 1000px;
+}
+
+
+.trailer-container {
+  width: 750px;           /* Or 100% if responsive */
+  height: 450px;          /* Match poster height */
+  background: black;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+.trailer-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Comments scrolling container with arrows */
+.comments-scroll-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  margin: 0 1rem;
+}
+
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: #f1c40f;
+  cursor: pointer;
+  z-index: 10;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(241, 196, 15, 0.3);
+}
+
+.scroll-arrow:hover {
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-arrow.left {
+  left: 0.5rem;
+}
+
+.scroll-arrow.right {
+  right: 0.5rem;
+}
+
+.comment-scroll-container {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem 3rem;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  width: 100%;
+  max-width: calc(100vw - 4rem);
+}
+
+.comment-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.comment-card {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  min-width: 320px;
+  max-width: 380px;
+  color: white;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: fit-content;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+}
+
+.comment-username {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.comment-rating {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #ffc107;
+}
+
+.comment-text {
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  color: #ddd;
+  line-height: 1.3rem;
+  max-height: 80px;  /* Limit height for collapsed state (~4-5 lines) */
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.3s ease;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.comment-text.expanded {
+  max-height: 150px; /* Allow vertical scrolling up to this height */
+  overflow-y: auto;
+  padding-right: 8px; /* for scrollbar spacing */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.3rem;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: #aaa;
+  text-align: right;
+}
+.see-more-btn {
+  color: #aaa;
+  font-size: 0.8rem;
+  cursor: pointer;
+  user-select: none;
+  align-self: flex-start;
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.see-more-btn:hover {
+  color: #ffc107;
+}

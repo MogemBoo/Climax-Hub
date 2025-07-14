@@ -1,0 +1,9 @@
+<!-- climaxhub-icon.svg -->
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="32" r="30" fill="#222831" stroke="#EEEEEE" stroke-width="4"/>
+  <circle cx="22" cy="22" r="4" fill="#EEEEEE"/>
+  <circle cx="42" cy="22" r="4" fill="#EEEEEE"/>
+  <circle cx="22" cy="42" r="4" fill="#EEEEEE"/>
+  <circle cx="42" cy="42" r="4" fill="#EEEEEE"/>
+  <rect x="28" y="28" width="8" height="8" rx="2" fill="#00ADB5"/>
+</svg>

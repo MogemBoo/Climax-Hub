@@ -1,0 +1,161 @@
+.profile-container {
+  width: 100vw;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #111;
+  color: #f1c40f;
+  font-family: 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.profile-title {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.profile-joined {
+  font-size: 1rem;
+  color: #bbb;
+  margin-bottom: 2rem;
+}
+
+.profile-section {
+  margin-bottom: 2.5rem;
+  background: #1c1c1c;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.1);
+}
+
+.profile-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #f1c40f;
+}
+
+.profile-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.profile-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #333;
+  font-size: 1rem;
+  color: white;
+}
+
+.profile-list li:last-child {
+  border-bottom: none;
+}
+
+.poster-thumb {
+  width: 50px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.empty-text {
+  color: #aaa;
+  font-style: italic;
+}
+
+.profile-loader {
+  color: #f1c40f;
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2rem;
+}
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-post-btn {
+  background-color: #f1c40f;
+  color: #111;
+  padding: 0.4rem 0.8rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-post-btn:hover {
+  background-color: #d4ac0d;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-card {
+  background: #1c1c1c;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+  color: white;
+}
+
+.popup-input,
+.popup-textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: none;
+  background: #2a2a2a;
+  color: white;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.popup-submit,
+.popup-cancel {
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.popup-submit {
+  background-color: #f1c40f;
+  color: #111;
+}
+
+.popup-cancel {
+  background-color: #555;
+  color: white;
+}
+
+.popup-submit:hover {
+  background-color: #d4ac0d;
+}
+
+.popup-cancel:hover {
+  background-color: #777;
+}
