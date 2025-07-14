@@ -1,0 +1,83 @@
+import pool from "../db.js";
+
+// Create a new post
+export const createPost = async (req, res) => {
+  const { user_id, title, content } = req.body;
+
+  if (!user_id || !title?.trim() || !content?.trim()) {
+    return res.status(400).json({ message: "User ID, title, and content are required." });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO post_n_poll (user_id, title, content)
+       VALUES ($1, $2, $3)
+       RETURNING post_id, user_id, title, content, created_at, has_poll, upvote, downvote`,
+      [user_id, title, content]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ message: "Failed to create post." });
+  }
+};
+
+//create a new poll
+export const createPoll = async (req, res) => {
+  const { user_id, title, content, options } = req.body;
+
+  if (!user_id || !title?.trim() || !content?.trim() || !options?.length) {
+    return res.status(400).json({ message: "User ID, title, content, and options are required." });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO post_n_poll (user_id, title, content, has_poll)
+       VALUES ($1, $2, $3, true)
+       RETURNING post_id`,
+      [user_id, title, content]
+    );
+
+    const postId = result.rows[0].post_id;
+
+    // Insert poll options
+    for (const option of options) {
+      await pool.query(
+        `INSERT INTO poll_option (post_id, option_text)
+         VALUES ($1, $2)`,
+        [postId, option]
+      );
+    }
+
+    res.status(201).json({ post_id: postId });
+  } catch (error) {
+    console.error("Error creating poll:", error);
+    res.status(500).json({ message: "Failed to create poll." });
+  }
+};
+
+// Get all posts (optionally by user)
+export const getPosts = async (req, res) => {
+  const userId = req.query.user_id;
+
+  try {
+    let query = `SELECT post_id, user_id, title, content, created_at, has_poll, upvote, downvote
+                 FROM post_n_poll`;
+    let params = [];
+
+    if (userId) {
+      query += ` WHERE user_id = $1`;
+      params.push(userId);
+    }
+
+    query += ` ORDER BY created_at DESC`;
+
+    const result = await pool.query(query, params);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Failed to fetch posts." });
+  }
+};
