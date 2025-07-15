@@ -10,6 +10,7 @@ import YourProfile from './YourProfile.jsx';
 import './index.css';
 import HomePage from './Home.jsx';
 import TopMovies from './TopMovie.jsx';
+import Layout from './Layout.jsx';
 import GetAll from './GetAll.jsx';
 import Login from './fakeLogin.jsx';
 
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
       <Routes>
+        <Route path="/" element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/top-movies" element={<TopMovies />} />
@@ -26,7 +28,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/login" element={<Login />} />
         <Route path="/movies/:id" element={<Details />} />
 
-
+        </Route>
       </Routes>
     </Router>
   </StrictMode>

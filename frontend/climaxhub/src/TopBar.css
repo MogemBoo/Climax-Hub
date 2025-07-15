@@ -1,0 +1,200 @@
+.top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.1); /* lighter transparent */
+  backdrop-filter: blur(12px); /* stronger blur for glass look */
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 2rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* subtle border */
+}
+
+
+/* Centered search form */
+.center-search-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 600px;
+  width: 100%;
+  justify-content: center;
+  flex: 1;
+}
+
+/* Right-aligned controls */
+.right-controls {
+  position: absolute;
+  top: 23%;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Input field */
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background-color: #222;
+  color: white;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+/* Buttons */
+.search-button,
+.top-movies-btn,
+.login-btn {
+  background-color: transparent;
+  color: #f1c40f;
+  border: 2px solid #f1c40f;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover,
+.top-movies-btn:hover,
+.login-btn:hover {
+  background-color: #f1c40f;
+  color: #111;
+}
+
+/* Dropdown */
+.user-menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 115%;
+  right: 0;
+  background-color: #222;
+  border: 1px solid #f1c40f66;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: 0.25rem 0;
+  animation: dropdown-fade 0.2s ease-in-out;
+}
+
+.dropdown-item {
+  background: transparent;
+  color: #f1c40f;
+  border: none;
+  text-align: left;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #333;
+}
+
+.dropdown-item.logout {
+  color: #e74c3c;
+}
+
+@keyframes dropdown-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .center-search-form {
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .right-controls {
+    position: static;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+}
+/* Search suggestions dropdown */
+.search-suggestions-dropdown {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  background-color: #222;
+  border: 1px solid #f1c40f66;
+  border-radius: 6px;
+  box-shadow: 0 6px 12px rgba(241, 196, 15, 0.4);
+  overflow-y: auto;
+  z-index: 1002;
+}
+
+/* Individual suggestion card */
+.search-suggestion-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-suggestion-card:hover {
+  background-color: #333;
+}
+
+.suggestion-poster {
+  width: 45px;
+  height: 65px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.suggestion-info {
+  display: flex;
+  flex-direction: column;
+  color: #f1c40f;
+}
+
+.suggestion-title {
+  font-weight: 600;
+  margin: 0;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-subinfo {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}

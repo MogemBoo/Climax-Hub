@@ -10,6 +10,9 @@ const HomePage = () => {
   const [recommendedSeries, setRecommendedSeries] = useState([]);
   const [recentMovies, setRecentMovies] = useState([]);
   const [recentSeries, setRecentSeries] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [currentTrendingIndex, setCurrentTrendingIndex] = useState(0);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -23,6 +26,25 @@ const HomePage = () => {
   const recSeriesScrollRef = useRef(null);
   const recentMovieScrollRef = useRef(null);
   const recentSeriesScrollRef = useRef(null);
+
+  // Fetch trending movies
+  useEffect(() => {
+    fetch("http://localhost:5000/api/movies/trending")
+      .then((res) => res.json())
+      .then((data) => setTrendingMovies(data))
+      .catch((err) => console.error("Error fetching trending movies:", err));
+  }, []);
+
+  // Auto rotate trending movie every 2 seconds
+  useEffect(() => {
+    if (trendingMovies.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentTrendingIndex((prevIndex) => (prevIndex + 1) % trendingMovies.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [trendingMovies]);
 
   useEffect(() => {
     if (!user) return;
@@ -76,15 +98,14 @@ const HomePage = () => {
   };
 
   const handleLogout = () => {
-  localStorage.removeItem("user");
-  setUser(null);
-  setShowDropdown(false);
+    localStorage.removeItem("user");
+    setUser(null);
+    setShowDropdown(false);
 
-  setRecommendedMovies([]);
-  setRecommendedSeries([]);
-  setSearchResults([]);
-};
-
+    setRecommendedMovies([]);
+    setRecommendedSeries([]);
+    setSearchResults([]);
+  };
 
   const handleCardClick = (type, id) => {
     navigate(`/details/${type}/${id}`);
@@ -102,98 +123,37 @@ const HomePage = () => {
 
   return (
     <div className="homepage-container">
-      <h1 className="homepage-title">Welcome to ClimaxHub</h1>
+      {/* Trending Section */}
+      <TrendingSection
+        movies={trendingMovies}
+        currentIndex={currentTrendingIndex}
+        onCardClick={(id) => handleCardClick("movies", id)}
+      />
 
-      <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          placeholder="Search Movies and Series..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="search-input"
-        />
-        <button type="submit" className="search-button">Search</button>
+      {/* Recommended Section (only if user logged in) */}
+      {user && (
+        <>
+          <Section
+            title="Recommended Movies for You"
+            data={recommendedMovies}
+            scrollRef={recMovieScrollRef}
+            onCardClick={(type, id) => handleCardClick("movies", id)}
+            isRecommendation
+            isSeries={false}
+          />
 
-        <button
-          type="button"
-          className="top-movies-btn"
-          onClick={() => navigate("/top-movies")}
-        >
-          Top Movies
-        </button>
-
-        {!user ? (
-          <button
-            type="button"
-            className="login-btn"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
-        ) : (
-          <div className="user-menu-wrapper">
-            <button
-              type="button"
-              className="login-btn user-btn"
-              onClick={() => setShowDropdown(!showDropdown)}
-            >
-              {user.username}
-            </button>
-            {showDropdown && (
-              <div className="user-dropdown">
-                <button className="dropdown-item" onClick={() => navigate("/your-profile")}>
-                  Your Profile
-                </button>
-                <button className="dropdown-item" onClick={() => navigate("/your-watchlist")}> 
-                  Your Watchlist
-                </button>
-                <button className="dropdown-item" onClick={() => navigate("/ratings")}>
-                  Your Ratings
-                </button>
-                <button className="dropdown-item logout" onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </form>
-
-      {searchQuery.trim() !== "" && (
-        <div className="section">
-          <h2 className="section-title">Search Results</h2>
-          {searchResults.length > 0 ? (
-            <MovieList movies={searchResults} onCardClick={handleCardClick} />
-          ) : (
-            <p style={{ color: "#bbb", marginTop: "1rem" }}>No results found.</p>
-          )}
-        </div>
+          <Section
+            title="Recommended Series for You"
+            data={recommendedSeries}
+            scrollRef={recSeriesScrollRef}
+            onCardClick={(type, id) => handleCardClick("series", id)}
+            isRecommendation
+            isSeries
+          />
+        </>
       )}
 
-
-      {user && (
-  <>
-    <Section
-      title="Recommended Movies for You"
-      data={recommendedMovies}
-      scrollRef={recMovieScrollRef}
-      onCardClick={(type, id) => handleCardClick("movies", id)}
-      isRecommendation
-      isSeries={false}
-    />
-
-    <Section
-      title="Recommended Series for You"
-      data={recommendedSeries}
-      scrollRef={recSeriesScrollRef}
-      onCardClick={(type, id) => handleCardClick("series", id)}
-      isRecommendation
-      isSeries
-    />
-  </>
-)}
-
-
+      {/* Recent Sections */}
       <Section
         title="Recently Released Movies"
         data={recentMovies}
@@ -213,22 +173,99 @@ const HomePage = () => {
   );
 };
 
-const Section = ({ title, data, scrollRef, onCardClick, isSeries = false, isRecommendation = false }) => (
+const TrendingSection = ({ movies, currentIndex, onCardClick }) => {
+  if (!movies.length) return null;
+
+  const upNextCount = 3;
+  const upNextMovies = [];
+  for (let i = 1; i <= upNextCount; i++) {
+    const idx = (currentIndex + i) % movies.length;
+    upNextMovies.push(movies[idx]);
+  }
+
+  const currentMovie = movies[currentIndex];
+
+  return (
+    <div className="trending-section">
+      <div
+        className="big-screen-movie"
+        onClick={() => onCardClick(currentMovie.movie_id)}
+      >
+        <img src={currentMovie.poster_url} alt={currentMovie.title} />
+        <h2>{currentMovie.title}</h2>
+        <p>Rating: {currentMovie.rating}</p>
+        <p>Released: {currentMovie.release_date}</p>
+      </div>
+
+      <div className="up-next-movies">
+        <h3>Up Next</h3>
+        {upNextMovies.map((movie) => (
+          <div
+            key={movie.movie_id}
+            className="up-next-movie-card"
+            onClick={() => onCardClick(movie.movie_id)}
+          >
+            <img src={movie.poster_url} alt={movie.title} />
+            <p>{movie.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Section = ({
+  title,
+  data,
+  scrollRef,
+  onCardClick,
+  isSeries = false,
+  isRecommendation = false,
+}) => (
   <div className="section">
     <h2 className="section-title">{title}</h2>
     <div className="scroll-container">
-      <button className="scroll-arrow left" onClick={() => scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" })}>←</button>
+      <button
+        className="scroll-arrow left"
+        onClick={() =>
+          scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" })
+        }
+      >
+        ←
+      </button>
       {isSeries ? (
-        <SeriesList series={data} scrollRef={scrollRef} onCardClick={onCardClick} isRecommendation={isRecommendation} />
+        <SeriesList
+          series={data}
+          scrollRef={scrollRef}
+          onCardClick={onCardClick}
+          isRecommendation={isRecommendation}
+        />
       ) : (
-        <MovieList movies={data} scrollRef={scrollRef} onCardClick={onCardClick} isRecommendation={isRecommendation} />
+        <MovieList
+          movies={data}
+          scrollRef={scrollRef}
+          onCardClick={onCardClick}
+          isRecommendation={isRecommendation}
+        />
       )}
-      <button className="scroll-arrow right" onClick={() => scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" })}>→</button>
+      <button
+        className="scroll-arrow right"
+        onClick={() =>
+          scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" })
+        }
+      >
+        →
+      </button>
     </div>
   </div>
 );
 
-const MovieList = ({ movies, scrollRef, onCardClick, isRecommendation = false }) => (
+const MovieList = ({
+  movies,
+  scrollRef,
+  onCardClick,
+  isRecommendation = false,
+}) => (
   <div className="movie-horizontal-scroll" ref={scrollRef}>
     {movies.map((movie) => (
       <div
@@ -241,7 +278,11 @@ const MovieList = ({ movies, scrollRef, onCardClick, isRecommendation = false })
           )
         }
       >
-        <img src={movie.poster_url} alt={movie.title} className="movie-scroll-poster" />
+        <img
+          src={movie.poster_url}
+          alt={movie.title}
+          className="movie-scroll-poster"
+        />
         <div>
           <h3 className="movie-title">{movie.title}</h3>
           <p className="movie-info">Rating: {movie.rating}</p>
@@ -252,7 +293,12 @@ const MovieList = ({ movies, scrollRef, onCardClick, isRecommendation = false })
   </div>
 );
 
-const SeriesList = ({ series, scrollRef, onCardClick, isRecommendation = false }) => (
+const SeriesList = ({
+  series,
+  scrollRef,
+  onCardClick,
+  isRecommendation = false,
+}) => (
   <div className="movie-horizontal-scroll" ref={scrollRef}>
     {series.map((s) => (
       <div

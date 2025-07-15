@@ -52,12 +52,15 @@
 }
 
 .search-input {
+  width: 100%; /* Input fills the search form */
+  min-width: 350px; /* Minimum width for input */
+  max-width: 500px; /* Maximum width */
   padding: 0.5rem;
   border: 1px solid #555;
   border-radius: 6px;
-  width: 250px;
   background-color: #222;
   color: white;
+  box-sizing: border-box;
 }
 
 .search-button,
@@ -231,4 +234,129 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+/* Container for the top buttons and search */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center search bar horizontally */
+  position: relative; /* Needed for absolute positioning of left-controls */
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background-color: #111; /* same as homepage-container */
+  padding: 1rem 2rem;
+  z-index: 10;
+}
+
+/* Left side: Top Movies + User/Login */
+.left-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: absolute; /* position left-controls absolutely */
+  left: 0;           /* stick to left */
+  top: 25%;          /* vertical center */
+  /*transform: translateY(-150%);*/
+  transform: translateX(430%);
+  z-index: 10;       /* make sure it is above other elements */
+}
+
+/* Center the search form horizontally */
+.center-search-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-grow: 0; /* Don't stretch */
+  min-width: 400px; /* Make it bigger */
+  max-width: 600px; /* Limit max width */
+  width: 100%; /* Make it responsive */
+  justify-content: center;
+}
+
+/* Optional responsive tweaks */
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: center;
+    
+  }
+  .left-controls {
+    justify-content: center;
+  }
+  .center-search-form {
+    justify-content: center;
+    width: 100%;
+  }
+}
+.trending-section {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: flex-start;
+}
+
+.big-screen-movie {
+  flex: 3;
+  background: #222;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #f1c40f;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(241, 196, 15, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.big-screen-movie:hover {
+  transform: scale(1.03);
+}
+
+.big-screen-movie img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.up-next-movies {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.up-next-movies h3 {
+  color: #f1c40f;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.up-next-movie-card {
+  background: #222;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #f1c40f;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(241, 196, 15, 0.2);
+  transition: background 0.2s ease;
+}
+
+.up-next-movie-card:hover {
+  background: #333;
+}
+
+.up-next-movie-card img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+.up-next-movie-card p {
+  font-size: 0.9rem;
+  font-weight: 500;
 }
