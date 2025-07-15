@@ -7,6 +7,15 @@ const YourProfile = () => {
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
 
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editReviewContent, setEditReviewContent] = useState("");
+
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editPostTitle, setEditPostTitle] = useState("");
+  const [editPostContent, setEditPostContent] = useState("");
+
+  const [expandedReviews, setExpandedReviews] = useState({});
+
   const loadUser = () => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -45,9 +54,41 @@ const YourProfile = () => {
       setShowPostPopup(false);
       setNewPostTitle("");
       setNewPostContent("");
-      loadUser(); // Reload user data
+      loadUser();
     } catch (err) {
       alert("Error adding post: " + err.message);
+    }
+  };
+
+  const handleSaveReview = async (reviewId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editReviewContent }),
+      });
+      if (!res.ok) throw new Error("Failed to update review");
+      alert("Review updated successfully!");
+      setEditingReviewId(null);
+      loadUser();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleSavePost = async (postId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: editPostTitle, content: editPostContent }),
+      });
+      if (!res.ok) throw new Error("Failed to update post");
+      alert("Post updated successfully!");
+      setEditingPostId(null);
+      loadUser();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -56,7 +97,9 @@ const YourProfile = () => {
   return (
     <div className="profile-container">
       <h1 className="profile-title">{user.username}'s Profile</h1>
-      <p className="profile-joined">Joined: {new Date(user.created_at).toLocaleDateString()}</p>
+      <p className="profile-joined">
+        Joined: {new Date(user.created_at).toLocaleDateString()}
+      </p>
 
       <div className="profile-section">
         <h2>Your Ratings</h2>
@@ -101,13 +144,81 @@ const YourProfile = () => {
       <div className="profile-section">
         <h2>Your Reviews</h2>
         {user.reviews?.length ? (
-          <ul className="profile-list">
-            {user.reviews.map((rev, i) => (
-              <li key={i}>
-                <strong>{rev.title}</strong> — {rev.content}
-              </li>
-            ))}
-          </ul>
+          <div>
+            {user.reviews
+              .filter((rev) => rev.content && rev.content.trim() !== "")
+              .map((rev) => {
+                const isLong = rev.content.length > 300;
+                const isExpanded = expandedReviews[rev.review_id];
+
+                return (
+                  <div key={rev.review_id} className="profile-card">
+                    {editingReviewId === rev.review_id ? (
+                      <>
+                        <input
+                          type="text"
+                          className="edit-input"
+                          value={rev.title}
+                          disabled
+                        />
+                        <textarea
+                          className="edit-textarea"
+                          value={editReviewContent}
+                          onChange={(e) => setEditReviewContent(e.target.value)}
+                          rows={4}
+                        />
+                        <div className="popup-buttons" style={{ marginTop: "0.5rem" }}>
+                          <button
+                            className="popup-submit"
+                            onClick={() => handleSaveReview(rev.review_id)}
+                          >
+                            Save
+                          </button>
+                          <button
+                            className="popup-cancel"
+                            onClick={() => setEditingReviewId(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <strong>{rev.title}</strong> {" "}
+                        <span className="review-content">
+                          {isLong && !isExpanded
+                            ? rev.content.slice(0, 300) + "..."
+                            : rev.content}
+                        </span>
+
+                        {isLong && (
+                          <button
+                            className="see-more-btn"
+                            onClick={() =>
+                              setExpandedReviews((prev) => ({
+                                ...prev,
+                                [rev.review_id]: !isExpanded,
+                              }))
+                            }
+                          >
+                            {isExpanded ? "See Less" : "See More"}
+                          </button>
+                        )}
+                        <button
+                          className="edit-btn"
+                          onClick={() => {
+                            setEditingReviewId(rev.review_id);
+                            setEditReviewContent(rev.content);
+                          }}
+                        >
+                          Edit
+                        </button>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
         ) : (
           <p className="empty-text">You haven’t written any reviews yet.</p>
         )}
@@ -121,13 +232,55 @@ const YourProfile = () => {
           </button>
         </div>
         {user.posts?.length ? (
-          <ul className="profile-list">
-            {user.posts.map((post, i) => (
-              <li key={i}>
-                <strong>{post.title}</strong>: {post.content}
-              </li>
+          <div>
+            {user.posts.map((post) => (
+              <div key={post.post_id} className="profile-card">
+                {editingPostId === post.post_id ? (
+                  <>
+                    <input
+                      className="edit-input"
+                      value={editPostTitle}
+                      onChange={(e) => setEditPostTitle(e.target.value)}
+                    />
+                    <textarea
+                      className="edit-textarea"
+                      value={editPostContent}
+                      onChange={(e) => setEditPostContent(e.target.value)}
+                      rows={4}
+                    />
+                    <div className="popup-buttons" style={{ marginTop: "0.5rem" }}>
+                      <button
+                        className="popup-submit"
+                        onClick={() => handleSavePost(post.post_id)}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="popup-cancel"
+                        onClick={() => setEditingPostId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <strong>{post.title}</strong> {post.content}
+                    <button
+                      className="edit-btn"
+                      onClick={() => {
+                        setEditingPostId(post.post_id);
+                        setEditPostTitle(post.title);
+                        setEditPostContent(post.content);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </>
+                )}
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <p className="empty-text">You haven't posted anything yet.</p>
         )}

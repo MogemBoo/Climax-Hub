@@ -24,6 +24,8 @@ createRoot(document.getElementById('root')).render(
         <Route path="/get-all" element={<GetAll />} />
         <Route path="/details/:type/:id" element={<Details />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/movies/:id" element={<Details />} />
+
 
       </Routes>
     </Router>

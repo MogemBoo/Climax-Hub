@@ -72,3 +72,13 @@
   font-size: 1rem;
   color: #bbb;
 }
+.topmovie-item.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.topmovie-item.clickable:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(241, 196, 15, 0.3);
+  background-color: #2a2a2a;
+}
