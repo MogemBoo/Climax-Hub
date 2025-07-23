@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./TopBar.css"; // reuse your existing styles
+import "./TopBar.css";
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -9,10 +9,8 @@ const TopBar = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Separate states for user menu and search suggestions dropdowns
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
@@ -26,11 +24,20 @@ const TopBar = () => {
     navigate("/");
   };
 
-  // Fetch search suggestions with debounce
+  // Handle user update
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      const saved = localStorage.getItem("user");
+      setUser(saved ? JSON.parse(saved) : null);
+    };
+    window.addEventListener("user-updated", handleUserUpdate);
+    return () => window.removeEventListener("user-updated", handleUserUpdate);
+  }, []);
+
+  // Debounced search
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
-
-    if (searchQuery.trim() === "") {
+    if (!searchQuery.trim()) {
       setSearchResults([]);
       setShowSearchDropdown(false);
       return;
@@ -44,7 +51,7 @@ const TopBar = () => {
           setShowSearchDropdown(true);
         })
         .catch((err) => {
-          console.error("Error searching movies:", err);
+          console.error("Search error:", err);
           setSearchResults([]);
           setShowSearchDropdown(false);
         });
@@ -53,7 +60,7 @@ const TopBar = () => {
     return () => clearTimeout(debounceTimer.current);
   }, [searchQuery]);
 
-  // Close dropdowns if clicked outside relevant elements
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -71,24 +78,69 @@ const TopBar = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // On pressing Enter in input or clicking Search button, go to search results page
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (searchQuery.trim() === "") return;
+    if (!searchQuery.trim()) return;
     setShowSearchDropdown(false);
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
-  // Navigate to movie detail page on clicking a suggestion
   const handleSuggestionClick = (movie_id) => {
-    setShowSearchDropdown(false);
     setSearchQuery("");
     setSearchResults([]);
+    setShowSearchDropdown(false);
     navigate(`/details/movies/${movie_id}`);
   };
 
   return (
     <div className="top-bar">
+      {/* Center: Search Form */}
+      <form
+        onSubmit={handleSearchSubmit}
+        className="center-search-form"
+        ref={searchInputRef}
+        style={{ position: "relative" }}
+      >
+        <button
+          type="button"
+          className="community-btn"
+          onClick={() => navigate("/community")}
+          style={{ marginRight: "0.5rem" }}
+        >
+          Community
+        </button>
+        <input
+          type="text"
+          placeholder="Search Movies and Series..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+          autoComplete="off"
+          onFocus={() => searchResults.length > 0 && setShowSearchDropdown(true)}
+        />
+        <button type="submit" className="search-button">Search</button>
+
+        {/* Suggestions Dropdown */}
+        {showSearchDropdown && searchResults.length > 0 && (
+          <div className="search-suggestions-dropdown">
+            {searchResults.map((movie) => (
+              <div
+                key={movie.movie_id}
+                className="search-suggestion-card"
+                onClick={() => handleSuggestionClick(movie.movie_id)}
+              >
+                <img src={movie.poster_url} alt={movie.title} className="suggestion-poster" />
+                <div className="suggestion-info">
+                  <p className="suggestion-title">{movie.title}</p>
+                  <p className="suggestion-subinfo">Rating: {movie.rating}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </form>
+
+      {/* Right: Top Movies, Login/User */}
       <div className="right-controls">
         <button
           type="button"
@@ -115,39 +167,19 @@ const TopBar = () => {
             >
               {user.username}
             </button>
+
             {showUserDropdown && (
               <div className="user-dropdown">
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowUserDropdown(false);
-                    navigate("/your-profile");
-                  }}
-                >
+                <button className="dropdown-item" onClick={() => { setShowUserDropdown(false); navigate("/your-profile"); }}>
                   Your Profile
                 </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowUserDropdown(false);
-                    navigate("/your-watchlist");
-                  }}
-                >
+                <button className="dropdown-item" onClick={() => { setShowUserDropdown(false); navigate("/your-watchlist"); }}>
                   Your Watchlist
                 </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowUserDropdown(false);
-                    navigate("/ratings");
-                  }}
-                >
+                <button className="dropdown-item" onClick={() => { setShowUserDropdown(false); navigate("/ratings"); }}>
                   Your Ratings
                 </button>
-                <button
-                  className="dropdown-item logout"
-                  onClick={handleLogout}
-                >
+                <button className="dropdown-item logout" onClick={handleLogout}>
                   Logout
                 </button>
               </div>
@@ -155,48 +187,6 @@ const TopBar = () => {
           </div>
         )}
       </div>
-
-      <form
-        onSubmit={handleSearchSubmit}
-        className="center-search-form"
-        ref={searchInputRef}
-        style={{ position: "relative" }}
-      >
-        <input
-          type="text"
-          placeholder="Search Movies and Series..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="search-input"
-          autoComplete="off"
-          onFocus={() => searchResults.length > 0 && setShowSearchDropdown(true)}
-        />
-        <button type="submit" className="search-button">
-          Search
-        </button>
-
-        {showSearchDropdown && searchResults.length > 0 && (
-          <div className="search-suggestions-dropdown">
-            {searchResults.map((movie) => (
-              <div
-                key={movie.movie_id}
-                className="search-suggestion-card"
-                onClick={() => handleSuggestionClick(movie.movie_id)}
-              >
-                <img
-                  src={movie.poster_url}
-                  alt={movie.title}
-                  className="suggestion-poster"
-                />
-                <div className="suggestion-info">
-                  <p className="suggestion-title">{movie.title}</p>
-                  <p className="suggestion-subinfo">Rating: {movie.rating}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </form>
     </div>
   );
 };

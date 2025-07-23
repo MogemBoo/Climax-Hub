@@ -62,16 +62,17 @@ export const getPosts = async (req, res) => {
   const userId = req.query.user_id;
 
   try {
-    let query = `SELECT post_id, user_id, title, content, created_at, has_poll, upvote, downvote
-                 FROM post_n_poll`;
+    let query = `SELECT p.post_id, p.user_id, u.username, p.title, p.content, p.created_at, p.has_poll, p.upvote, p.downvote
+                 FROM post_n_poll p
+                 JOIN users u ON p.user_id = u.user_id`;
     let params = [];
 
     if (userId) {
-      query += ` WHERE user_id = $1`;
+      query += ` WHERE p.user_id = $1`;
       params.push(userId);
     }
 
-    query += ` ORDER BY created_at DESC`;
+    query += ` ORDER BY p.created_at DESC`;
 
     const result = await pool.query(query, params);
 

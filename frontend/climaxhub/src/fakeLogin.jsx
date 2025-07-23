@@ -53,6 +53,7 @@ const Login = () => {
 
 
     localStorage.setItem("user", JSON.stringify(data.user));
+    window.dispatchEvent(new Event("user-updated"));
 
     navigate("/home");
 

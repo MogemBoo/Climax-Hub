@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Details from "./Details";
 // import Details from '../../../.gitignore/fakeDetails.jsx';
 import YourProfile from './YourProfile.jsx';
-
+import Community from './Community.jsx';
 
 
 import './index.css';
@@ -27,7 +27,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/details/:type/:id" element={<Details />} />
         <Route path="/login" element={<Login />} />
         <Route path="/movies/:id" element={<Details />} />
-
+        <Route path="/community" element={<Community />} />
         </Route>
       </Routes>
     </Router>
