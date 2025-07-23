@@ -7,8 +7,12 @@ export const addMovieRating = async (req, res) => {
         return res.status(400).json({ message: "Missing required fields" });
     }
 
+    const client = await pool.connect();
+
     try {
-        const check = await pool.query(
+        await client.query('BEGIN');
+
+        const check = await client.query(
             `SELECT * FROM movie_review WHERE user_id = $1 AND movie_id = $2`,
             [user_id, movie_id]
         );
@@ -16,28 +20,41 @@ export const addMovieRating = async (req, res) => {
         let result;
 
         if (check.rows.length > 0) {
-            result = await pool.query(
+            result = await client.query(
                 `UPDATE movie_review
-         SET rating = $1, comments = $2, created_at = CURRENT_TIMESTAMP
-         WHERE user_id = $3 AND movie_id = $4
-         RETURNING *`,
+                 SET rating = $1, comments = $2, created_at = CURRENT_TIMESTAMP
+                 WHERE user_id = $3 AND movie_id = $4
+                 RETURNING *`,
                 [rating, comments || null, user_id, movie_id]
             );
             res.status(200).json({ message: "Movie rating updated", review: result.rows[0] });
         } else {
-            result = await pool.query(
+            result = await client.query(
                 `INSERT INTO movie_review (user_id, movie_id, rating, comments)
-         VALUES ($1, $2, $3, $4)
-         RETURNING *`,
+                 VALUES ($1, $2, $3, $4)
+                 RETURNING *`,
                 [user_id, movie_id, rating, comments || null]
             );
             res.status(201).json({ message: "Movie rating added", review: result.rows[0] });
         }
+
+        if (rating >= 7) {
+            await client.query(
+                `UPDATE movie SET popularity = popularity + 1.0 WHERE movie_id = $1`,
+                [movie_id]
+            );
+        }
+
+        await client.query('COMMIT');
     } catch (err) {
+        await client.query('ROLLBACK');
         console.error(err);
         res.status(500).json({ message: "Server error while adding/updating movie rating" });
+    } finally {
+        client.release();
     }
 };
+
 
 export const addSeriesRating = async (req, res) => {
     const { user_id, series_id, rating, comments } = req.body;

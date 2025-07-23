@@ -7,11 +7,13 @@ import {
     getAllMovies,
     getMovieById,
     getPerStarUserCount,
-    getReviewsByRating
+    getReviewsByRating,
+    getTrendingMovies
 } from '../controllers/moviesController.js';
 
 const router = express.Router();
 
+router.get('/trending', getTrendingMovies);
 router.post('/full', addFullMovie);
 router.get('/top', getTopRatedMovies);
 router.get('/recent', getRecentMovies);

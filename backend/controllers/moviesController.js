@@ -103,6 +103,14 @@ export async function getMovieById(req, res) {
 
     const movie = movieResult.rows[0];
 
+    await pool.query(`
+  INSERT INTO movie_popularity (movie_id, popularity, last_updated)
+  VALUES ($1, 0.5, now())
+  ON CONFLICT (movie_id) DO UPDATE
+  SET popularity = movie_popularity.popularity + 0.75,
+      last_updated = now()
+`, [movieId]);
+
     const genresResult = await pool.query(`
       SELECT g.name FROM genre g
       JOIN movie_genre mg ON g.genre_id = mg.genre_id
@@ -144,6 +152,26 @@ export async function getMovieById(req, res) {
   }
 }
 
+//fetch trending movies
+// This function fetches the top 10 trending movies based on their popularity in the last 24 hours.
+export async function getTrendingMovies(req, res) {
+  try {
+    const result = await pool.query(`
+      SELECT m.movie_id, m.title, ROUND(m.rating::numeric, 1) AS rating,
+             m.vote_count, m.poster_url, m.description, m.release_date
+      FROM movie_popularity mp
+      JOIN movie m ON mp.movie_id = m.movie_id
+      WHERE mp.last_updated >= NOW() - INTERVAL '1 day'
+      ORDER BY mp.popularity DESC
+      LIMIT 10
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching trending movies:', error);
+    res.status(500).json({ error: 'Failed to fetch trending movies' });
+  }
+}
+
 //fetch top 20 movies
 export async function getTopRatedMovies(req, res) {
   try {
@@ -169,19 +197,34 @@ export async function searchMovies(req, res) {
 
   try {
     const result = await pool.query(`
-      SELECT movie_id, title, ROUND(rating::numeric,1) AS rating, release_date, poster_url
+      SELECT movie_id, title, ROUND(rating::numeric,1) AS rating, release_date, poster_url,
+             similarity(title, $1) AS sim
       FROM movie
-      WHERE LOWER(title) LIKE LOWER($1)
-      ORDER BY release_date DESC
+      WHERE title ILIKE '%' || $1 || '%'
+      ORDER BY sim DESC, release_date DESC
       LIMIT 20
-    `, [`%${query}%`]);
+    `, [query]);
+
+    for (const movie of result.rows) {
+      const weight = movie.sim * 0.5; // max 0.5
+      if (weight > 0.1) {
+        await pool.query(`
+          INSERT INTO movie_popularity (movie_id, popularity, last_updated)
+          VALUES ($1, $2, now())
+          ON CONFLICT (movie_id) DO UPDATE
+          SET popularity = movie_popularity.popularity + $2,
+              last_updated = now()
+        `, [movie.movie_id, weight]);
+      }
+    }
 
     res.json(result.rows);
   } catch (error) {
-    console.error(' Error searching movies:', error);
+    console.error('Error searching movies:', error);
     res.status(500).json({ error: 'Failed to search movies' });
   }
 }
+
 
 // Get recently released movies
 export async function getRecentMovies(req, res) {
