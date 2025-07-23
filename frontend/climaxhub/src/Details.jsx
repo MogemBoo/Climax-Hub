@@ -3,6 +3,21 @@ import { useParams, useLocation } from 'react-router-dom';
 import { FaStar } from 'react-icons/fa';
 import './Details.css';
 
+const PLACEHOLDER_IMG =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='180'><rect width='100%' height='100%' fill='%23222'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23aaa' font-size='16'>No Image</text></svg>";
+
+const PersonImage = ({ src, alt }) => {
+  const [imgSrc, setImgSrc] = useState(src || PLACEHOLDER_IMG);
+  return (
+    <img
+      src={imgSrc}
+      onError={() => setImgSrc(PLACEHOLDER_IMG)}
+      alt={alt}
+      style={{ width: '120px', height: '180px', objectFit: 'cover', borderRadius: '0.5rem', marginBottom: '0.5rem', background: '#222', display: 'block' }}
+    />
+  );
+};
+
 const CommentCard = ({ review }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -166,12 +181,54 @@ const Details = () => {
 
   return (
     <div className="fullscreen-wrapper">
-      <button className="rating-btn" onClick={handleToggleRatingCard}>
-        ⭐ Rating
-      </button>
-      <button className="watchlist-btn" onClick={handleAddToWatchlist}>
-        📌 Watchlist
-      </button>
+      <div className="content row-layout">
+        <div className="left-col">
+          <img className="poster-large" src={data.poster_url} alt={data.title} />
+          <div className="info-under-poster">
+            <h1>{data.title}</h1>
+            <p className="sub">
+              {new Date(type === 'movie' ? data.release_date : data.start_date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+              {data.duration ? ` • ${data.duration} min` : ''}
+              {data.rating ? ` • ⭐ ${data.rating}` : ''}
+            </p>
+            <p className="desc">{data.description}</p>
+            <div className="tags">
+              {(data.genres || []).map((g, i) => (
+                <span className="tag" key={i}>{g}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {data.trailer_url && (
+          <div className="right-section">
+            <div className="trailer-container">
+              <iframe
+                src={data.trailer_url.replace("watch?v=", "embed/")}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Trailer"
+              ></iframe>
+            </div>
+          </div>
+        )}
+
+        <div className="right-col">
+          <div className="action-buttons-row">
+            <button className="rating-btn" onClick={handleToggleRatingCard}>
+              ⭐ Rating
+            </button>
+            <button className="watchlist-btn" onClick={handleAddToWatchlist}>
+              📌 Watchlist
+            </button>
+          </div>
+        </div>
+      </div>
 
       {showRatingCard && (
         <div className="rating-popup">
@@ -217,54 +274,12 @@ const Details = () => {
 
       <div className="background-blur" style={{ backgroundImage: `url(${data.poster_url})` }}></div>
 
-      <div className="content row-layout">
-        <div className="left-col">
-          <img className="poster-large" src={data.poster_url} alt={data.title} />
-          <div className="info-under-poster">
-            <h1>{data.title}</h1>
-            <p className="sub">
-              {new Date(type === 'movie' ? data.release_date : data.start_date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-              {data.duration ? ` • ${data.duration} min` : ''}
-              {data.rating ? ` • ⭐ ${data.rating}` : ''}
-            </p>
-            <p className="desc">{data.description}</p>
-            <div className="tags">
-              {(data.genres || []).map((g, i) => (
-                <span className="tag" key={i}>{g}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {data.trailer_url && (
-          <div className="right-section">
-            <div className="trailer-container">
-              <iframe
-                src={data.trailer_url.replace("watch?v=", "embed/")}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title="Trailer"
-              ></iframe>
-            </div>
-          </div>
-        )}
-      </div>
-
       <div className="extras">
         <h2 className="section-title">{type} Cast</h2>
         <div className="people-grid">
           {(data.cast || []).map(person => (
             <div className="person-card" key={person.person_id}>
-              <img
-                src={person.profile_img_url || '/fallback.jpg'}
-                onError={(e) => { e.target.src = '/fallback.jpg'; }}
-                alt={person.name}
-              />
+              <PersonImage src={person.profile_img_url} alt={person.name} />
               <h4>{person.name}</h4>
               <p className="role">{person.character_name}</p>
             </div>
@@ -275,11 +290,7 @@ const Details = () => {
         <div className="people-grid">
           {(data.crew || []).map(person => (
             <div className="person-card" key={person.person_id}>
-              <img
-                src={person.profile_img_url || '/fallback.jpg'}
-                onError={(e) => { e.target.src = '/fallback.jpg'; }}
-                alt={person.name}
-              />
+              <PersonImage src={person.profile_img_url} alt={person.name} />
               <h4>{person.name}</h4>
               <p className="role">{person.role}</p>
             </div>
@@ -287,7 +298,7 @@ const Details = () => {
         </div>
 
         <h2 className="section-title">User Comments</h2>
-        {(data.reviews || []).length > 0 ? (
+        {(data.reviews || []).filter(r => r.comments && r.comments.trim() !== "").length > 0 ? (
           <div className="comments-scroll-container">
             <button 
               className="scroll-arrow left" 
@@ -296,7 +307,7 @@ const Details = () => {
               ←
             </button>
             <div className="comment-scroll-container" ref={commentScrollRef}>
-              {data.reviews.map((review) => (
+              {data.reviews.filter(r => r.comments && r.comments.trim() !== "").map((review) => (
                 <CommentCard key={review.review_id} review={review} />
               ))}
             </div>

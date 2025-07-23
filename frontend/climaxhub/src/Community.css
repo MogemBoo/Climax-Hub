@@ -19,23 +19,41 @@
 
 .community-posts-list {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
+}
+
+.see-more-btn {
+  color: #aaa;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  margin-top: 0.5rem;
+  padding: 0;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+.see-more-btn:hover {
+  color: #f1c40f;
 }
 
 
 .community-post-card {
-  background: rgba(34, 34, 34, 0.45); /* transparent glass effect */
+  background: rgba(34, 34, 34, 0.45);
   border: 1px solid #f1c40f33;
   border-radius: 14px;
   box-shadow: 0 4px 16px rgba(241, 196, 15, 0.08);
-  padding: 1.2rem 1.5rem;
+  padding: 1.2rem 3.5rem;
   color: #fff;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   transition: box-shadow 0.2s, transform 0.2s;
   width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .community-post-card:hover {
@@ -46,8 +64,16 @@
 .community-post-username {
   font-weight: 700;
   color: #f1c40f;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.2rem;
   font-size: 1.1rem;
+}
+
+.community-post-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.5px;
 }
 
 .community-post-content {

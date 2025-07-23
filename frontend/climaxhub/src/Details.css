@@ -130,14 +130,27 @@ h1 {
   padding: 0.7rem;
   border-radius: 0.8rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  max-width: 120px;
+  min-height: 250px;
+  box-sizing: border-box;
 }
 
 .person-card img {
   width: 100%;
   height: 180px;
+  min-width: 120px;
+  min-height: 180px;
+  max-width: 120px;
+  max-height: 180px;
   object-fit: cover;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
+  background: #222;
+  display: block;
 }
 
 .person-card h4 {
@@ -152,9 +165,6 @@ h1 {
 
 
 .rating-btn {
-  position: relative;
-  top: 20px;
-  left: 1355px;
   background: rgba(255, 255, 255, 0.1);
   color: #ffc107;
   border: none;
@@ -194,9 +204,6 @@ h1 {
   text-align: center;
 }
 .watchlist-btn {
-  position: relative;
-  top: 70px;
-  left: 1240px;
   background: rgba(255, 255, 255, 0.1);
   color: #ffc107;
   border: none;
@@ -320,9 +327,10 @@ h1 {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  transform: translateX(-150px);
+  transform: none;
   min-height: 300px;
   max-width: 1000px;
+  margin-left: 100px;
 }
 
 
@@ -470,4 +478,32 @@ h1 {
 
 .see-more-btn:hover {
   color: #ffc107;
+}
+
+.right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  min-width: 180px;
+  margin-left: 2rem;
+}
+
+.action-buttons-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-end;
+  margin: 0;
+  justify-content: flex-start;
+}
+
+.rating-btn, .watchlist-btn {
+  position: static;
+  top: unset;
+  left: unset;
+  display: inline-flex;
+  width: auto;
+  min-width: 0;
+  max-width: none;
 }

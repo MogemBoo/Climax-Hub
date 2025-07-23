@@ -13,6 +13,7 @@ import TopMovies from './TopMovie.jsx';
 import Layout from './Layout.jsx';
 import GetAll from './GetAll.jsx';
 import Login from './fakeLogin.jsx';
+import TopSeries from './TopSeries.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/top-movies" element={<TopMovies />} />
+        <Route path="/top-series" element={<TopSeries />} />
         <Route path="/your-profile" element={<YourProfile />} />
         <Route path="/get-all" element={<GetAll />} />
         <Route path="/details/:type/:id" element={<Details />} />

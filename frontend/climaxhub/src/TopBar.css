@@ -25,6 +25,7 @@
   width: 100%;
   justify-content: center;
   flex: 1;
+  margin-left: -50px;
 }
 
 /* Right-aligned controls */
@@ -79,7 +80,6 @@
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-right: 1rem;
 }
 
 .community-btn:hover {
@@ -87,14 +87,21 @@
   color: #111;
 }
 
-.left-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: absolute;
-  left: 2rem;
-  top: 23%;
-  z-index: 10;
+.top-series-btn {
+  background-color: transparent;
+  color: #f1c40f;
+  border: 2px solid #f1c40f;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+}
+
+.top-series-btn:hover {
+  background-color: #f1c40f;
+  color: #111;
 }
 
 /* Dropdown */
