@@ -3,7 +3,10 @@ import pool from "../db.js";
 export const addMovieRating = async (req, res) => {
     const { user_id, movie_id, rating, comments } = req.body;
 
+    console.log('addMovieRating called with:', { user_id, movie_id, rating, comments });
+
     if (!user_id || !movie_id || !rating) {
+        console.log('Missing required fields:', { user_id, movie_id, rating });
         return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -16,6 +19,7 @@ export const addMovieRating = async (req, res) => {
             `SELECT * FROM movie_review WHERE user_id = $1 AND movie_id = $2`,
             [user_id, movie_id]
         );
+        console.log('Existing review check:', check.rows);
 
         let result;
 
@@ -27,6 +31,7 @@ export const addMovieRating = async (req, res) => {
                  RETURNING *`,
                 [rating, comments || null, user_id, movie_id]
             );
+            console.log('Updated review:', result.rows[0]);
             res.status(200).json({ message: "Movie rating updated", review: result.rows[0] });
         } else {
             result = await client.query(
@@ -35,12 +40,17 @@ export const addMovieRating = async (req, res) => {
                  RETURNING *`,
                 [user_id, movie_id, rating, comments || null]
             );
+            console.log('Inserted review:', result.rows[0]);
             res.status(201).json({ message: "Movie rating added", review: result.rows[0] });
         }
 
         if (rating >= 7) {
             await client.query(
-                `UPDATE movie SET popularity = popularity + 1.0 WHERE movie_id = $1`,
+                `INSERT INTO movie_popularity (movie_id, popularity, last_updated)
+                 VALUES ($1, 1.0, NOW())
+                 ON CONFLICT (movie_id) DO UPDATE
+                 SET popularity = movie_popularity.popularity + 1.0,
+                     last_updated = NOW()`,
                 [movie_id]
             );
         }
@@ -48,8 +58,8 @@ export const addMovieRating = async (req, res) => {
         await client.query('COMMIT');
     } catch (err) {
         await client.query('ROLLBACK');
-        console.error(err);
-        res.status(500).json({ message: "Server error while adding/updating movie rating" });
+        console.error('Error in addMovieRating:', err);
+        res.status(500).json({ message: "Server error while adding/updating movie rating", error: err.message });
     } finally {
         client.release();
     }
