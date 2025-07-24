@@ -35,13 +35,13 @@ const HomePage = () => {
       .catch((err) => console.error("Error fetching trending movies:", err));
   }, []);
 
-  // Auto rotate trending movie every 2 seconds
+  // Auto rotate trending movie every 5 seconds (was 2 seconds)
   useEffect(() => {
     if (trendingMovies.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentTrendingIndex((prevIndex) => (prevIndex + 1) % trendingMovies.length);
-    }, 2000);
+    }, 5000); // 5 seconds
 
     return () => clearInterval(interval);
   }, [trendingMovies]);
@@ -176,6 +176,64 @@ const HomePage = () => {
 const TrendingSection = ({ movies, currentIndex, onCardClick }) => {
   if (!movies.length) return null;
 
+  // If only one movie, show only the big screen and no up next
+  if (movies.length === 1) {
+    const currentMovie = movies[0];
+    return (
+      <div className="trending-section">
+        <div
+          className="big-screen-movie row-layout"
+          onClick={() => onCardClick(currentMovie.movie_id)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="bigscreen-poster-col">
+            <img src={currentMovie.poster_url} alt={currentMovie.title} className="bigscreen-poster-img" />
+          </div>
+          <div className="bigscreen-info-col">
+            <h2>{currentMovie.title}</h2>
+            <p className="trending-rating">⭐ {currentMovie.rating}</p>
+            <p className="trending-desc">{currentMovie.description?.slice(0, 220) || "No description available."}{currentMovie.description && currentMovie.description.length > 220 ? "..." : ""}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If only two movies, only show the other one in up next
+  if (movies.length === 2) {
+    const currentMovie = movies[currentIndex];
+    const upNextMovie = movies[(currentIndex + 1) % 2];
+    return (
+      <div className="trending-section">
+        <div
+          className="big-screen-movie row-layout"
+          onClick={() => onCardClick(currentMovie.movie_id)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="bigscreen-poster-col">
+            <img src={currentMovie.poster_url} alt={currentMovie.title} className="bigscreen-poster-img" />
+          </div>
+          <div className="bigscreen-info-col">
+            <h2>{currentMovie.title}</h2>
+            <p className="trending-rating">⭐ {currentMovie.rating}</p>
+            <p className="trending-desc">{currentMovie.description?.slice(0, 220) || "No description available."}{currentMovie.description && currentMovie.description.length > 220 ? "..." : ""}</p>
+          </div>
+        </div>
+        <div className="up-next-movies">
+          <h3>Up Next</h3>
+          <div
+            key={upNextMovie.movie_id}
+            className="up-next-movie-card"
+            onClick={() => onCardClick(upNextMovie.movie_id)}
+          >
+            <img src={upNextMovie.poster_url} alt={upNextMovie.title} />
+            <p>{upNextMovie.title}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const upNextCount = 3;
   const upNextMovies = [];
   for (let i = 1; i <= upNextCount; i++) {
@@ -188,13 +246,18 @@ const TrendingSection = ({ movies, currentIndex, onCardClick }) => {
   return (
     <div className="trending-section">
       <div
-        className="big-screen-movie"
+        className="big-screen-movie row-layout"
         onClick={() => onCardClick(currentMovie.movie_id)}
+        style={{ cursor: 'pointer' }}
       >
-        <img src={currentMovie.poster_url} alt={currentMovie.title} />
-        <h2>{currentMovie.title}</h2>
-        <p>Rating: {currentMovie.rating}</p>
-        <p>Released: {currentMovie.release_date}</p>
+        <div className="bigscreen-poster-col">
+          <img src={currentMovie.poster_url} alt={currentMovie.title} className="bigscreen-poster-img" />
+        </div>
+        <div className="bigscreen-info-col">
+          <h2>{currentMovie.title}</h2>
+          <p className="trending-rating">⭐ {currentMovie.rating}</p>
+          <p className="trending-desc">{currentMovie.description?.slice(0, 220) || "No description available."}{currentMovie.description && currentMovie.description.length > 220 ? "..." : ""}</p>
+        </div>
       </div>
 
       <div className="up-next-movies">

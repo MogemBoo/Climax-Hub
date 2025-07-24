@@ -1,12 +1,14 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import TopBar from "./TopBar";
 
 const Layout = () => {
+  const location = useLocation();
+  const hideTopBar = location.pathname === "/login";
   return (
     <>
-      <TopBar />
-      <div style={{ paddingTop: "60px" }}>
+      {!hideTopBar && <TopBar />}
+      <div style={{ paddingTop: !hideTopBar ? "60px" : 0 }}>
         {/* Padding top to avoid overlap if TopBar is fixed */}
         <Outlet /> {/* renders matched child routes */}
       </div>

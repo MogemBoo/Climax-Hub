@@ -64,6 +64,7 @@ const Details = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const commentScrollRef = useRef(null);
+  const ratingPopupRef = useRef(null); // <-- add ref
 
   const fetchDetails = async () => {
     const isSeries = location.pathname.includes('/series/');
@@ -149,15 +150,20 @@ const Details = () => {
       return;
     }
 
+    // Determine if this is a movie or series review
+    const isSeries = location.pathname.includes('/series/');
+    const endpoint = isSeries ? 'series' : 'movie';
+    const idKey = isSeries ? 'series_id' : 'movie_id';
+
     const body = {
       user_id: user.user_id,
       rating: userRating,
       comments: comment,
-      [type === "movie" ? "movie_id" : "series_id"]: parseInt(id),
+      [idKey]: parseInt(id),
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/rating/${type}`, {
+      const res = await fetch(`http://localhost:5000/api/rating/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -176,6 +182,18 @@ const Details = () => {
       alert("Failed to submit rating: " + err.message);
     }
   };
+
+  // Close rating popup when clicking outside
+  useEffect(() => {
+    if (!showRatingCard) return;
+    function handleClickOutside(e) {
+      if (ratingPopupRef.current && !ratingPopupRef.current.contains(e.target)) {
+        setShowRatingCard(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showRatingCard]);
 
   if (!data) return <div className="loader">Loading...</div>;
 
@@ -221,7 +239,7 @@ const Details = () => {
         <div className="right-col">
           <div className="action-buttons-row">
             <button className="rating-btn" onClick={handleToggleRatingCard}>
-              ⭐ Rating
+              <span role="img" aria-label="star">⭐</span> {userRating > 0 ? <span className="user-rating-value">{userRating}</span> : 'Rating'}
             </button>
             <button className="watchlist-btn" onClick={handleAddToWatchlist}>
               📌 Watchlist
@@ -231,7 +249,7 @@ const Details = () => {
       </div>
 
       {showRatingCard && (
-        <div className="rating-popup">
+        <div className="rating-popup" ref={ratingPopupRef}>
           <div className="rating-card">
             <h3>Rate this {type}</h3>
             <div className="stars">

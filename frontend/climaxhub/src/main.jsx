@@ -14,6 +14,7 @@ import Layout from './Layout.jsx';
 import GetAll from './GetAll.jsx';
 import Login from './fakeLogin.jsx';
 import TopSeries from './TopSeries.jsx';
+import YourWatchlist from './YourWatchlist.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -30,6 +31,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/login" element={<Login />} />
         <Route path="/movies/:id" element={<Details />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/your-watchlist" element={<YourWatchlist />} />
         </Route>
       </Routes>
     </Router>
