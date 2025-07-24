@@ -165,6 +165,13 @@ export async function getSeriesById(req, res) {
   ORDER BY r.created_at DESC
 `, [seriesId]);
 
+await pool.query(`
+  INSERT INTO series_popularity (series_id, popularity_score, last_updated)
+  VALUES ($1, 0.5, NOW())
+  ON CONFLICT (series_id) DO UPDATE
+  SET popularity_score = series_popularity.popularity_score + 0.75,
+      last_updated = NOW()
+`, [seriesId]);
 
     res.json({
       ...series,
@@ -212,6 +219,19 @@ export async function searchSeries(req, res) {
       ORDER BY start_date DESC
       LIMIT 20
     `, [`%${query}%`]);
+
+    for (const series of result.rows) {
+  const weight = series.sim * 0.5;
+  if (weight > 0.1) {
+    await pool.query(`
+      INSERT INTO series_popularity (series_id, popularity_score, last_updated)
+      VALUES ($1, $2, NOW())
+      ON CONFLICT (series_id) DO UPDATE
+      SET popularity_score = series_popularity.popularity_score + $2,
+          last_updated = NOW()
+    `, [series.series_id, weight]);
+  }
+}
 
     res.json(result.rows);
   } catch (error) {
@@ -318,5 +338,24 @@ export const getPerStarUserCount = async (req, res) => {
   } catch (error) {
     console.error('Error while fetching per star user count:', error);
     res.status(500).json({ error: 'Failed to fetch per star user count' });
+  }
+}
+
+//get trending series
+export async function getTrendingSeries(req, res) {
+  try {
+    const result = await pool.query(`
+      SELECT s.series_id, s.title, ROUND(s.rating::numeric,1) AS rating, s.vote_count,
+      s.poster_url, s.description, TO_CHAR(s.start_date, 'DD-MM-YYYY') AS start_date
+      FROM series_popularity sp
+      JOIN series s ON sp.series_id = s.series_id
+      WHERE sp.last_updated >= NOW() - INTERVAL '1 day'
+      ORDER BY sp.popularity_score DESC
+      LIMIT 20
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching trending series:', error);
+    res.status(500).json({ error: 'Failed to fetch trending series' });
   }
 }

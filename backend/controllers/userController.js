@@ -6,7 +6,7 @@ export const getUserProfile = async (req, res) => {
   try {
     // Get user basic info
     const userResult = await pool.query(
-      `SELECT user_id, username, created_at FROM users WHERE user_id = $1`,
+      `SELECT user_id, username, is_admin, created_at FROM users WHERE user_id = $1`,
       [user_id]
     );
 

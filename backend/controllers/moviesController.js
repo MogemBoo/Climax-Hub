@@ -158,13 +158,13 @@ export async function getTrendingMovies(req, res) {
   try {
     const result = await pool.query(`
       SELECT m.movie_id, m.title, ROUND(m.rating::numeric, 1) AS rating,
-             m.vote_count, m.poster_url, m.description, m.release_date
+             m.vote_count, m.poster_url, m.description, TO_CHAR(m.release_date, 'DD-MM-YYYY') AS release_date
       FROM movie_popularity mp
       JOIN movie m ON mp.movie_id = m.movie_id
       WHERE mp.last_updated >= NOW() - INTERVAL '1 day'
       ORDER BY mp.popularity DESC
       LIMIT 10
-    `);
+    `);~
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching trending movies:', error);

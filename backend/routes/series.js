@@ -7,11 +7,13 @@ import {
     searchSeries,
     getSeriesById,
     getSeriesEpisodes,
-    getPerStarUserCount
+    getPerStarUserCount,
+    getTrendingSeries
 } from '../controllers/seriesController.js';
 
 const router = express.Router();
 
+router.get('/trending', getTrendingSeries);
 router.post('/full', addFullSeries);
 router.get('/top', getTopRatedSeries);
 router.get('/recent', getRecentSeries);
