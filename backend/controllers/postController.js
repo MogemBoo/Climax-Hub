@@ -82,3 +82,35 @@ export const getPosts = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch posts." });
   }
 };
+
+//update existing post
+export const updatePost = async (req, res) => {
+  const { postId } = req.params;
+  if (!postId) {
+    return res.status(400).json({ message: "Post ID is required." });
+  }
+  const { title, content } = req.body;
+
+  if (!postId || !title?.trim() || !content?.trim()) {
+    return res.status(400).json({ message: "Post ID, title, and content are required." });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE post_n_poll
+       SET title = $1, content = $2
+       WHERE post_id = $3
+       RETURNING post_id, user_id, title, content, created_at, has_poll, upvote, downvote`,
+      [title, content, postId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: "Failed to update post." });
+  }
+};
