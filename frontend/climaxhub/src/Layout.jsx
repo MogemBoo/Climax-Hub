@@ -8,7 +8,7 @@ const Layout = () => {
   return (
     <>
       {!hideTopBar && <TopBar />}
-      <div style={{ paddingTop: !hideTopBar ? "60px" : 0 }}>
+      <div>
         {/* Padding top to avoid overlap if TopBar is fixed */}
         <Outlet /> {/* renders matched child routes */}
       </div>
