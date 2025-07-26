@@ -60,12 +60,12 @@ const YourProfile = () => {
     }
   };
 
-  const handleSaveReview = async (reviewId) => {
+  const handleSaveReview = async (reviewId, type) => {
     try {
       const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: editReviewContent }),
+        body: JSON.stringify({ content: editReviewContent, type }),
       });
       if (!res.ok) throw new Error("Failed to update review");
       alert("Review updated successfully!");
@@ -89,6 +89,44 @@ const YourProfile = () => {
       loadUser();
     } catch (err) {
       alert(err.message);
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) {
+      return;
+    }
+
+    try {
+      // TODO: Backend needs to add DELETE /api/posts/:postId endpoint
+      const res = await fetch(`http://localhost:5000/api/posts/${postId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete post");
+      alert("Post deleted successfully!");
+      loadUser();
+    } catch (err) {
+      alert("Error deleting post: " + err.message);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId, type) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) {
+      return;
+    }
+
+    try {
+      // TODO: Backend needs to add DELETE /api/reviews/:reviewId endpoint with type parameter
+      const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      if (!res.ok) throw new Error("Failed to delete review");
+      alert("Review deleted successfully!");
+      loadUser();
+    } catch (err) {
+      alert("Error deleting review: " + err.message);
     }
   };
 
@@ -170,7 +208,7 @@ const YourProfile = () => {
                         <div className="popup-buttons" style={{ marginTop: "0.5rem" }}>
                           <button
                             className="popup-submit"
-                            onClick={() => handleSaveReview(rev.review_id)}
+                            onClick={() => handleSaveReview(rev.review_id, rev.type)}
                           >
                             Save
                           </button>
@@ -212,6 +250,12 @@ const YourProfile = () => {
                           }}
                         >
                           Edit
+                        </button>
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDeleteReview(rev.review_id, rev.type)}
+                        >
+                          Delete
                         </button>
                       </>
                     )}
@@ -275,6 +319,12 @@ const YourProfile = () => {
                       }}
                     >
                       Edit
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDeletePost(post.post_id)}
+                    >
+                      Delete
                     </button>
                   </>
                 )}
