@@ -114,3 +114,30 @@ export const updatePost = async (req, res) => {
     res.status(500).json({ message: "Failed to update post." });
   }
 };
+
+// Delete a post
+export const deletePost = async (req, res) => {
+  const { postId } = req.params;
+
+  if (!postId) {
+    return res.status(400).json({ message: "Post ID is required." });
+  }
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM post_n_poll
+       WHERE post_id = $1
+       RETURNING post_id`,
+      [postId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    res.json({ message: "Post deleted successfully.", post_id: postId });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ message: "Failed to delete post." });
+  }
+};

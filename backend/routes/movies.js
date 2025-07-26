@@ -20,9 +20,9 @@ router.get('/top', getTopRatedMovies);
 router.get('/recent', getRecentMovies);
 router.get('/search', searchMovies);
 router.get('/all', getAllMovies);
+router.get('/genre/:genre', getMoviesByGenre);
 router.get('/:id', getMovieById);
 router.get('/:id/per-star-user-count', getPerStarUserCount);
 router.get('/:id/reviews/:rating', getReviewsByRating);
-router.get('/genre/:genre', getMoviesByGenre);
 
 export default router;

@@ -20,9 +20,9 @@ router.get('/top', getTopRatedSeries);
 router.get('/recent', getRecentSeries);
 router.get('/search', searchSeries);
 router.get('/all', getAllSeries);
+router.get('/genre/:genre', getSeriesByGenre);
 router.get('/:id', getSeriesById);
 router.get('/:id/episodes', getSeriesEpisodes);
 router.get('/per-star-user-count', getPerStarUserCount);
-router.get('/genre/:genre', getSeriesByGenre);
 
 export default router;
