@@ -193,6 +193,237 @@
   color: #111;
 }
 
+/* Cast Section Styles */
+.cast-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.cast-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(52, 152, 219, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: border-color 0.3s;
+}
+
+.cast-item:hover {
+  border-color: rgba(52, 152, 219, 0.4);
+}
+
+.cast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.cast-header h4 {
+  color: #3498db;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.remove-cast-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.remove-cast-btn:hover {
+  background-color: #c0392b;
+}
+
+.cast-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.add-cast-btn {
+  background-color: #3498db;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  margin-top: 1rem;
+}
+
+.add-cast-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+/* Crew Section Styles */
+.crew-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.crew-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(155, 89, 182, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: border-color 0.3s;
+}
+
+.crew-item:hover {
+  border-color: rgba(155, 89, 182, 0.4);
+}
+
+.crew-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(155, 89, 182, 0.2);
+}
+
+.crew-header h4 {
+  color: #9b59b6;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.remove-crew-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.remove-crew-btn:hover {
+  background-color: #c0392b;
+}
+
+.crew-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.add-crew-btn {
+  background-color: #9b59b6;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+  margin-top: 1rem;
+}
+
+.add-crew-btn:hover {
+  background-color: #8e44ad;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+}
+
+/* Seasons Section Styles */
+.seasons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.season-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(241, 196, 15, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: border-color 0.3s;
+}
+
+.season-item:hover {
+  border-color: rgba(241, 196, 15, 0.4);
+}
+
+.season-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(241, 196, 15, 0.2);
+}
+
+.season-header h4 {
+  color: #f1c40f;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.remove-season-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.remove-season-btn:hover {
+  background-color: #c0392b;
+}
+
+.season-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.add-season-btn {
+  background-color: #27ae60;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+  margin-top: 1rem;
+}
+
+.add-season-btn:hover {
+  background-color: #229954;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .admin-form-container {
@@ -210,5 +441,19 @@
   
   .form-title {
     font-size: 1.5rem;
+  }
+
+  .cast-header,
+  .crew-header,
+  .season-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .remove-cast-btn,
+  .remove-crew-btn,
+  .remove-season-btn {
+    align-self: flex-end;
   }
 } 
