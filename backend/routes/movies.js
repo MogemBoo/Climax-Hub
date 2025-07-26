@@ -8,7 +8,8 @@ import {
     getMovieById,
     getPerStarUserCount,
     getReviewsByRating,
-    getTrendingMovies
+    getTrendingMovies,
+    getMoviesByGenre
 } from '../controllers/moviesController.js';
 
 const router = express.Router();
@@ -22,5 +23,6 @@ router.get('/all', getAllMovies);
 router.get('/:id', getMovieById);
 router.get('/:id/per-star-user-count', getPerStarUserCount);
 router.get('/:id/reviews/:rating', getReviewsByRating);
+router.get('/genre/:genre', getMoviesByGenre);
 
 export default router;

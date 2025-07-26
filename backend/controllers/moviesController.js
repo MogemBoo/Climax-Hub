@@ -323,3 +323,29 @@ export const getReviewsByRating = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch reviews by rating' });
   }
 }
+
+//get movie by genre
+export const getMoviesByGenre = async (req, res) => {
+  const { genre } = req.params;
+
+  if (!genre) {
+    return res.status(400).json({ error: 'Genre is required' });
+  }
+
+  try {
+    const result = await pool.query(`
+      SELECT m.movie_id, m.title, ROUND(m.rating::numeric,1) AS rating, to_char(m.release_date, 'DD-MM-YYYY') AS release_date, m.poster_url
+      FROM movie m
+      JOIN movie_genre mg ON m.movie_id = mg.movie_id
+      JOIN genre g ON mg.genre_id = g.genre_id
+      WHERE g.name ILIKE $1
+      ORDER BY m.release_date DESC
+      LIMIT 30
+    `, [`%${genre}%`]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching movies by genre:', error);
+    res.status(500).json({ error: 'Failed to fetch movies by genre' });
+  }
+}

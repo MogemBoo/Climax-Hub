@@ -359,3 +359,25 @@ export async function getTrendingSeries(req, res) {
     res.status(500).json({ error: 'Failed to fetch trending series' });
   }
 }
+
+//get series by genre
+export async function getSeriesByGenre(req, res) {
+  const { genre } = req.params;
+
+  try {
+    const result = await pool.query(`
+      SELECT s.series_id, s.title, ROUND(s.rating::numeric,1) AS rating, s.vote_count,
+      s.poster_url, s.description, TO_CHAR(s.start_date, 'DD-MM-YYYY') AS start_date
+      FROM series s
+      JOIN series_genre sg ON s.series_id = sg.series_id
+      JOIN genre g ON sg.genre_id = g.genre_id
+      WHERE LOWER(g.name) = LOWER($1)
+      ORDER BY s.start_date DESC
+    `, [genre]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching series by genre:', error);
+    res.status(500).json({ error: 'Failed to fetch series by genre' });
+  }
+}

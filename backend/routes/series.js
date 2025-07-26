@@ -8,7 +8,8 @@ import {
     getSeriesById,
     getSeriesEpisodes,
     getPerStarUserCount,
-    getTrendingSeries
+    getTrendingSeries,
+    getSeriesByGenre
 } from '../controllers/seriesController.js';
 
 const router = express.Router();
@@ -22,5 +23,6 @@ router.get('/all', getAllSeries);
 router.get('/:id', getSeriesById);
 router.get('/:id/episodes', getSeriesEpisodes);
 router.get('/per-star-user-count', getPerStarUserCount);
+router.get('/genre/:genre', getSeriesByGenre);
 
 export default router;
