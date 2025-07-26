@@ -43,7 +43,6 @@ export async function login(req, res) {
       [user.user_id]
     );
 
-    // ✅ Send user data back, no JWT
     res.json({ 
       message: 'Login successful', 
       user: {
