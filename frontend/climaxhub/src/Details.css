@@ -93,6 +93,24 @@ h1 {
   backdrop-filter: blur(4px);
 }
 
+.genre-btn {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.7rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.genre-btn:hover {
+  background: rgba(241, 196, 15, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(241, 196, 15, 0.3);
+}
+
 .loader {
   height: 100vh;
   display: flex;

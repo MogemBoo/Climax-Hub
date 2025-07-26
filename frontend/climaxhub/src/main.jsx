@@ -5,6 +5,8 @@ import Details from "./Details";
 // import Details from '../../../.gitignore/fakeDetails.jsx';
 import YourProfile from './YourProfile.jsx';
 import Community from './Community.jsx';
+import Admin from './Admin.jsx';
+import Genre from './Genre.jsx';
 
 
 import './index.css';
@@ -31,6 +33,8 @@ createRoot(document.getElementById('root')).render(
         <Route path="/login" element={<Login />} />
         <Route path="/movies/:id" element={<Details />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/genre/:genre" element={<Genre />} />
         <Route path="/your-watchlist" element={<YourWatchlist />} />
         </Route>
       </Routes>

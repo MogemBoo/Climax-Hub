@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { FaStar } from 'react-icons/fa';
 import './Details.css';
 
@@ -57,6 +57,7 @@ const CommentCard = ({ review }) => {
 const Details = () => {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [type, setType] = useState('movie');
   const [showRatingCard, setShowRatingCard] = useState(false);
@@ -183,6 +184,10 @@ const Details = () => {
     }
   };
 
+  const handleGenreClick = (genre) => {
+    navigate(`/genre/${encodeURIComponent(genre)}`);
+  };
+
   // Close rating popup when clicking outside
   useEffect(() => {
     if (!showRatingCard) return;
@@ -216,7 +221,13 @@ const Details = () => {
             <p className="desc">{data.description}</p>
             <div className="tags">
               {(data.genres || []).map((g, i) => (
-                <span className="tag" key={i}>{g}</span>
+                <button 
+                  className="tag genre-btn" 
+                  key={i}
+                  onClick={() => handleGenreClick(g)}
+                >
+                  {g}
+                </button>
               ))}
             </div>
           </div>

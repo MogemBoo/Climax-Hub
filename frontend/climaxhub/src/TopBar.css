@@ -26,7 +26,7 @@
   width: 100%;
   justify-content: center;
   flex: 1;
-  margin-left: -50px;
+  margin-left: -150px;
 }
 
 /* Right-aligned controls */
@@ -84,6 +84,22 @@
 }
 
 .community-btn:hover {
+  background-color: #f1c40f;
+  color: #111;
+}
+
+.admin-btn {
+  background-color: transparent;
+  color: #f1c40f;
+  border: 2px solid #f1c40f;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-btn:hover {
   background-color: #f1c40f;
   color: #111;
 }

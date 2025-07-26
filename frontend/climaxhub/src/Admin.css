@@ -1,0 +1,42 @@
+.admin-container {
+  width: 100vw;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #111;
+  color: #f1c40f;
+  font-family: 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.admin-title {
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.admin-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.add-content-btn {
+  background-color: #f1c40f;
+  color: #111;
+  padding: 1rem 2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: background 0.3s;
+  box-shadow: 0 4px 15px rgba(241, 196, 15, 0.3);
+}
+
+.add-content-btn:hover {
+  background-color: #d4ac0d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
+} 

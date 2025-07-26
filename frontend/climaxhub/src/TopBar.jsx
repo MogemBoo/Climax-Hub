@@ -183,6 +183,16 @@ const TopBar = () => {
         ref={searchInputRef}
         style={{ position: "relative" }}
       >
+        {user && user.is_admin && (
+          <button
+            type="button"
+            className="admin-btn"
+            onClick={() => navigate("/admin")}
+            style={{ marginRight: "0.5rem" }}
+          >
+            Admin
+          </button>
+        )}
         <button
           type="button"
           className="community-btn"
