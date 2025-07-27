@@ -165,7 +165,7 @@ export async function getSeriesById(req, res) {
   ORDER BY r.created_at DESC
 `, [seriesId]);
 
-await pool.query(`
+    await pool.query(`
   INSERT INTO series_popularity (series_id, popularity_score, last_updated)
   VALUES ($1, 0.5, NOW())
   ON CONFLICT (series_id) DO UPDATE
@@ -213,25 +213,26 @@ export async function searchSeries(req, res) {
 
   try {
     const result = await pool.query(`
-      SELECT series_id, title, ROUND(rating::numeric,1) AS rating, start_date, poster_url
-      FROM series
-      WHERE LOWER(title) LIKE LOWER($1)
-      ORDER BY start_date DESC
-      LIMIT 20
+      SELECT series_id, title, ROUND(rating::numeric,1) AS rating, start_date, poster_url,
+       similarity(title, $1) AS sim
+FROM series
+WHERE LOWER(title) LIKE LOWER('%' || $1 || '%')
+ORDER BY sim DESC
+LIMIT 20;
     `, [`%${query}%`]);
 
     for (const series of result.rows) {
-  const weight = series.sim * 0.5;
-  if (weight > 0.1) {
-    await pool.query(`
+      const weight = series.sim * 0.5;
+      if (weight > 0.1) {
+        await pool.query(`
       INSERT INTO series_popularity (series_id, popularity_score, last_updated)
       VALUES ($1, $2, NOW())
       ON CONFLICT (series_id) DO UPDATE
       SET popularity_score = series_popularity.popularity_score + $2,
           last_updated = NOW()
     `, [series.series_id, weight]);
-  }
-}
+      }
+    }
 
     res.json(result.rows);
   } catch (error) {
@@ -338,6 +339,33 @@ export const getPerStarUserCount = async (req, res) => {
   } catch (error) {
     console.error('Error while fetching per star user count:', error);
     res.status(500).json({ error: 'Failed to fetch per star user count' });
+  }
+}
+
+// get reviews by rating
+export const getReviewsByRating = async (req, res) => {
+  const { id, rating } = req.params;
+
+  const series_id = parseInt(id);
+  const star_rating = parseInt(rating);
+
+  if (isNaN(series_id) || isNaN(star_rating)) {
+    return res.status(400).json({ error: 'Invalid series ID or rating' });
+  }
+
+  try {
+    const result = await pool.query(`
+      SELECT sr.review_id, sr.user_id, u.username, ROUND(sr.rating::numeric,1) AS rating, sr.comments, sr.created_at
+      FROM series_review sr
+      JOIN users u ON sr.user_id = u.user_id
+      WHERE sr.series_id = $1 AND sr.rating = $2
+      ORDER BY sr.created_at DESC
+    `, [series_id, star_rating]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching series reviews by rating:', error);
+    res.status(500).json({ error: 'Failed to fetch series reviews by rating' });
   }
 }
 

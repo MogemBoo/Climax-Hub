@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Details from "./Details";
-// import Details from '../../../.gitignore/fakeDetails.jsx';
+// import Details from "./Details";
+import Details from './fakeDetails.jsx';
 import YourProfile from './YourProfile.jsx';
 import Community from './Community.jsx';
 import Admin from './Admin.jsx';

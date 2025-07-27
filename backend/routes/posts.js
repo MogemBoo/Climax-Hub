@@ -3,19 +3,30 @@ import {
     createPost,
     getPosts,
     updatePost,
-    deletePost
+    deletePost,
+    upvotePost,
+    downvotePost,
 } from "../controllers/postController.js";
+
+import {
+    addComment,
+    getComments
+} from "../controllers/commentsController.js";
 
 const router = express.Router();
 
-router.put("/:postId", updatePost);
-// Create a post
+// Post routes
 router.post("/", createPost);
-
-// Get posts
 router.get("/", getPosts);
-
-// Delete a post
+router.put("/:postId", updatePost);
 router.delete("/:postId", deletePost);
+router.post("/:post_id/upvote", upvotePost);
+router.post("/:post_id/downvote", downvotePost);
+
+// Add comment to a post
+router.post("/:postId/comments", addComment);
+
+// Get comments for a post
+router.get("/:postId/comments", getComments);
 
 export default router;

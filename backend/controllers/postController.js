@@ -141,3 +141,43 @@ export const deletePost = async (req, res) => {
     res.status(500).json({ message: "Failed to delete post." });
   }
 };
+
+export const upvotePost = async (req, res) => {
+  const { post_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "UPDATE post_n_poll SET upvote = upvote + 1 WHERE post_id = $1 RETURNING *",
+      [post_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error in upvotePost:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const downvotePost = async (req, res) => {
+  const { post_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "UPDATE post_n_poll SET downvote = downvote + 1 WHERE post_id = $1 RETURNING *",
+      [post_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error in downvotePost:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};

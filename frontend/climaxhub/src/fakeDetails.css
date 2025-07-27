@@ -1,0 +1,780 @@
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #111;
+  font-family: 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.fullscreen-wrapper {
+  position: relative;
+  min-height: 100%;
+  color: white;
+  background: #000;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+.fullscreen-wrapper::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30vh;
+  background: linear-gradient(to bottom, transparent, #000);
+  z-index: 0;
+}
+
+.background-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px) brightness(0.3);
+  z-index: 0;
+}
+
+/* Updated .content for better layout */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;  /* align top edges */
+  justify-content: flex-start; /* align content to left */
+  padding: 2vw 0.5vw; /* Responsive padding */
+  gap: 1vw; /* Responsive gap */
+  min-height: 480px; /* Minimum height for initial content */
+  width: 100vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+/* Left Column for Poster and Info */
+.left-col {
+  flex: 0 0 auto; /* Don't grow or shrink, adjust width automatically based on content */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+  padding-left: 3rem; /* Add padding to align with other sections */
+}
+
+/* Poster size remains fixed */
+.poster-large {
+  width: 350px;
+  height: 450px;
+  object-fit: cover;
+  border-radius: 0.8rem;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.info-under-poster { /* Renamed from .info to be more specific */
+  /* Remove width constraints here to let content adapt */
+  /* background: rgba(255, 255, 255, 0.05); Removed this background from here */
+  padding: 0; /* Remove padding as it's not a card */
+  border-radius: 0;
+  color: white;
+  width: 350px; /* Match poster width */
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.sub {
+  margin: 0.5rem 0;
+  color: #ccc;
+}
+
+.desc {
+  margin-top: 1rem;
+  line-height: 1.6;
+}
+
+.tags {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.7rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+  color: white; /* Ensure text color is white */
+}
+
+.genre-btn {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.7rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.genre-btn:hover {
+  background: rgba(241, 196, 15, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(241, 196, 15, 0.3);
+}
+
+.loader {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+/* Right Column for Trailer and Action Buttons */
+.right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Align to the right side of its container */
+  justify-content: flex-start;
+  min-width: 180px; /* Minimum width for the column */
+  padding-right: 3rem; /* Add padding to align with other sections */
+}
+
+.action-buttons-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-end; /* Align buttons to the right */
+  margin: 0;
+  justify-content: flex-start;
+}
+
+.rating-btn, .watchlist-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffc107;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.3s, transform 0.2s;
+  /* Removed absolute positioning, now they flow with flexbox */
+  position: static;
+  top: unset;
+  left: unset;
+  display: inline-flex; /* To allow padding/sizing */
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.rating-btn:hover, .watchlist-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Right Section for Trailer */
+.right-section {
+  flex: 1; /* Takes up remaining space */
+  display: flex;
+  justify-content: flex-start; /* Aligns content to the left within its space */
+  align-items: flex-start;
+  transform: none; /* Reset any previous transforms */
+  min-height: 300px;
+  max-width: 1000px; /* Limit max width for trailer */
+  margin-left: 3rem; /* Adjust margin to push it from left-col */
+}
+
+.trailer-container {
+  width: 750px;           /* Example fixed width, consider responsive approaches */
+  height: 450px;          /* Match poster height */
+  background: black;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+.trailer-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Extras section below main content */
+.extras {
+  position: relative;
+  z-index: 1;
+  padding: 2rem 3rem; /* Consistent padding with main content sides */
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  margin: 2rem 0 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  display: inline-block;
+  padding-bottom: 0.3rem;
+}
+
+.people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1.5rem;
+}
+
+.person-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.7rem;
+  border-radius: 0.8rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  max-width: 120px;
+  min-height: 250px; /* Ensure cards have consistent height */
+  box-sizing: border-box;
+}
+
+.person-card img {
+  width: 100%;
+  height: 180px;
+  min-width: 120px;
+  min-height: 180px;
+  max-width: 120px;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: #222;
+  display: block;
+}
+
+.person-card h4 {
+  font-size: 1rem;
+  margin: 0.2rem 0 0.1rem;
+}
+
+.person-card .role {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+
+.rating-popup {
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  width: 240px;
+  animation: fadeIn 0.3s ease;
+}
+
+.rating-card h3 {
+  margin-top: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  gap: 4px;
+}
+
+.stars input {
+  display: none;
+}
+
+.stars label {
+  cursor: pointer;
+}
+
+.rating-card p {
+  text-align: center;
+  color: #ccc;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.comment-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  color: #eee;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  resize: none;
+  box-sizing: border-box; /* Include padding/border in width */
+}
+
+.submit-rating-btn {
+  margin-top: 0.8rem;
+  background: #ffc107;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border-radius: 1rem;
+  cursor: pointer;
+  color: black;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+
+.submit-rating-btn:hover {
+  background: #e0a800;
+}
+
+/* Comments scrolling container with arrows */
+.comments-scroll-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  margin: 0 1rem; /* Adjust margin if needed */
+}
+
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: #f1c40f;
+  cursor: pointer;
+  z-index: 10;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(241, 196, 15, 0.3);
+}
+
+.scroll-arrow:hover {
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-arrow.left {
+  left: 0.5rem;
+}
+
+.scroll-arrow.right {
+  right: 0.5rem;
+}
+
+.comment-scroll-container {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem 3rem; /* Padding for cards within scroll area */
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  width: 100%;
+  max-width: calc(100vw - 4rem); /* Adjust max-width based on parent padding */
+}
+
+.comment-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.comment-card {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  min-width: 320px;
+  max-width: 380px;
+  color: white;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: fit-content;
+  transition: all 0.3s ease; /* Transition for fading */
+}
+
+/* NEW: Faded comment card style */
+.comment-card.faded {
+  opacity: 0.3; /* Make it faded */
+  /* filter: blur(1px); Optional: add a slight blur */
+  pointer-events: none; /* Prevent interaction with faded cards */
+}
+
+.comment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+}
+
+.comment-username {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.comment-rating {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #ffc107;
+}
+
+.comment-text {
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  color: #ddd;
+  line-height: 1.3rem;
+  max-height: 80px;  /* Limit height for collapsed state (~4-5 lines) */
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.3s ease;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.comment-text.expanded {
+  max-height: 150px; /* Allow vertical scrolling up to this height */
+  overflow-y: auto;
+  padding-right: 8px; /* for scrollbar spacing */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.3rem;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: #aaa;
+  text-align: right;
+}
+.see-more-btn {
+  color: #aaa;
+  font-size: 0.8rem;
+  cursor: pointer;
+  user-select: none;
+  align-self: flex-start;
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.see-more-btn:hover {
+  color: #ffc107;
+}
+
+/* --- Vertical Bar Chart for Star Ratings --- */
+
+.star-rating-chart-container {
+  margin-top: 2rem;
+  padding: 1rem 3rem; /* Consistent padding with other sections */
+  box-sizing: border-box; /* Ensure padding is included in width */
+  width: 100%; /* Take full width of parent (.extras) */
+}
+
+.star-rating-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* Bars grow from the bottom */
+  height: 200px; /* Fixed height for the chart area */
+  width: 100%;
+  padding: 0 1rem; /* Padding inside the chart container itself */
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.05); /* Slight background for the chart area */
+  border-radius: 0.8rem;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.star-rating-chart .bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1; /* Distribute space equally */
+  max-width: 10%; /* Ensure bars don't get too wide if many stars */
+  height: 100%;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out, background-color 0.2s ease;
+  padding: 0.5rem 0.2rem; /* Add some padding for touch/click area */
+  box-sizing: border-box;
+}
+
+.star-rating-chart .bar-container.active {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+  background-color: rgba(241, 196, 15, 0.1); /* Highlight active bar container */
+}
+
+.star-rating-chart .bar-container:hover {
+  transform: translateY(-5px); /* Lift on hover */
+  background-color: rgba(241, 196, 15, 0.05); /* Slight hover background */
+}
+
+.star-rating-chart .bar-wrapper {
+  flex: 1; /* Occupies all available vertical space */
+  display: flex;
+  align-items: flex-end; /* Push bar to the bottom */
+  width: 100%;
+  padding-bottom: 0.5rem; /* Space between bar and count label */
+  /* This wrapper helps keep the labels aligned top/bottom while bar grows */
+}
+
+.star-rating-chart .bar {
+  background-color: #ffc107; /* Star color */
+  width: 80%; /* Adjust bar width relative to its container */
+  margin: 0 auto; /* Center the bar */
+  border-radius: 0.5rem 0.5rem 0 0; /* Rounded top corners */
+  transition: height 0.5s ease-in-out;
+}
+
+.star-rating-chart .rating-label {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+}
+
+.star-rating-chart .count-label {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+/* Ensure the chart is below genres and above cast */
+.extras h2.section-title:first-of-type {
+  margin-top: 1rem; /* Adjust if needed */
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1200px) {
+  .content {
+    flex-direction: column;
+    padding: 2vw 1vw; /* Adjust padding */
+    gap: 2vw; /* Adjust gap */
+    align-items: center; /* Center content horizontally */
+    min-width: 0;
+    max-width: 100vw;
+  }
+  .left-col {
+    padding-left: 0; /* Remove specific padding for smaller screens */
+    align-items: center; /* Center content within left-col */
+  }
+  .info-under-poster {
+    width: 90vw; /* Allow info to take more width on small screens */
+    max-width: 350px; /* Cap it at original poster width */
+    text-align: center; /* Center text */
+  }
+  .tags {
+    justify-content: center; /* Center tags */
+  }
+  .right-section {
+    margin-left: 0;
+    width: 100%;
+    max-width: 90vw; /* Limit trailer width for smaller screens */
+    min-width: 0;
+    justify-content: center; /* Center trailer */
+  }
+  .trailer-container {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 220px; /* Adjust height for smaller screens */
+  }
+  .poster-large {
+    width: 280px; /* Adjust poster size */
+    height: 400px;
+  }
+  .right-col {
+    margin-left: 0; /* Remove margin */
+    padding-right: 0; /* Remove padding */
+    align-items: center; /* Center buttons */
+    width: 100%; /* Take full width to center buttons */
+  }
+  .action-buttons-row {
+    align-items: center; /* Center buttons within their row */
+  }
+
+  /* Bar chart adjustments for smaller screens */
+  .star-rating-chart-container {
+    padding: 1rem 1vw; /* Reduce horizontal padding */
+  }
+  .star-rating-chart {
+    height: 180px; /* Slightly shorter chart */
+    padding: 0 0.5rem;
+  }
+  .star-rating-chart .bar-container {
+    max-width: 12%; /* Allow bars to be slightly wider */
+  }
+  .star-rating-chart .rating-label,
+  .star-rating-chart .count-label {
+    font-size: 0.8rem; /* Smaller font sizes */
+  }
+
+  .comment-scroll-container {
+    padding: 1rem 1rem; /* Adjust padding */
+    max-width: calc(100vw - 2rem); /* Adjust max-width based on new padding */
+  }
+}
+
+@media (max-width: 768px) {
+  .poster-large {
+    width: 200px;
+    height: 280px;
+  }
+  .info-under-poster {
+    width: 95vw;
+    max-width: 250px;
+  }
+  h1 {
+    font-size: 2.2rem;
+  }
+  .sub {
+    font-size: 0.9rem;
+  }
+  .desc {
+    font-size: 0.9rem;
+  }
+  .trailer-container {
+    height: 180px;
+  }
+  .person-card {
+    min-width: 100px;
+    max-width: 100px;
+    min-height: 220px;
+  }
+  .person-card img {
+    width: 100px;
+    height: 150px;
+    min-width: 100px;
+    min-height: 150px;
+  }
+  .section-title {
+    font-size: 1.4rem;
+  }
+  .extras {
+    padding: 1rem 1rem;
+  }
+  .comment-card {
+    min-width: 280px;
+    max-width: 300px;
+  }
+  .comment-scroll-container {
+    padding: 0.5rem 0.5rem; /* Further reduce padding */
+    max-width: calc(100vw - 1rem);
+  }
+  .scroll-arrow {
+    font-size: 1.5rem;
+    padding: 0.3rem;
+  }
+
+  /* Even smaller bar chart for tiny screens */
+  .star-rating-chart {
+    height: 150px; /* Adjusted height for 768px */
+    padding: 0 0.2rem;
+  }
+  .star-rating-chart .bar-container {
+    max-width: 15%;
+  }
+  .star-rating-chart .rating-label,
+  .star-rating-chart .count-label {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .poster-large {
+    width: 180px;
+    height: 260px;
+  }
+  h1 {
+    font-size: 1.8rem;
+  }
+  .sub {
+    font-size: 0.8rem;
+  }
+  .desc {
+    font-size: 0.85rem;
+  }
+  .trailer-container {
+    height: 150px;
+  }
+  .person-card {
+    min-width: 90px;
+    max-width: 90px;
+    min-height: 200px;
+  }
+  .person-card img {
+    width: 90px;
+    height: 130px;
+    min-width: 90px;
+    min-height: 130px;
+  }
+  .rating-btn, .watchlist-btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+  .rating-popup {
+    width: 90%;
+    right: 5%;
+    left: 5%;
+  }
+
+  /* Bar chart for very small screens */
+  .star-rating-chart {
+    height: 120px;
+    padding: 0;
+  }
+  .star-rating-chart .bar-container {
+    max-width: 18%; /* Allow more width per bar */
+    padding: 0.2rem 0.1rem;
+  }
+  .star-rating-chart .rating-label,
+  .star-rating-chart .count-label {
+    font-size: 0.6rem;
+  }
+  .star-rating-chart .bar-wrapper {
+    padding-bottom: 0.2rem;
+  }
+  .comment-card {
+    min-width: 240px;
+  }
+}
