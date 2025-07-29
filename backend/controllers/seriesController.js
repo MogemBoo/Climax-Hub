@@ -148,13 +148,17 @@ export async function getSeriesById(req, res) {
       ORDER BY season_number
     `, [seriesId]);
 
+
     for (const season of seasonsResult.rows) {
       const episodesResult = await pool.query(`
-        SELECT episode_id, episode_number, title, air_date, duration, description
-        FROM episode
-        WHERE season_id = $1
-        ORDER BY episode_number
-      `, [season.season_id]);
+  SELECT e.episode_id, e.episode_number, e.title, e.air_date, e.duration, e.description,
+         COALESCE(ROUND(AVG(r.rating)::numeric,1),0) AS avg_rating
+  FROM episode e
+  LEFT JOIN episode_review r ON e.episode_id = r.episode_id
+  WHERE e.season_id = $1
+  GROUP BY e.episode_id
+  ORDER BY e.episode_number
+`, [season.season_id]);
 
       season.episodes = episodesResult.rows;
     }
@@ -300,15 +304,23 @@ export async function getSeriesEpisodes(req, res) {
     const episodesBySeason = {};
 
     for (const season of seasonsResult.rows) {
-      const episodesResult = await pool.query(`
-        SELECT episode_id, episode_number, title, air_date, duration, description
-        FROM episode
-        WHERE season_id = $1
-        ORDER BY episode_number
-      `, [season.season_id]);
+  const episodesResult = await pool.query(`
+    SELECT e.episode_id, e.episode_number, e.title, e.air_date, e.duration, e.description,
+           COALESCE(ROUND(AVG(r.rating)::numeric,1),0) AS avg_rating,
+           COUNT(r.rating) AS rating_count
+    FROM episode e
+    LEFT JOIN episode_review r ON e.episode_id = r.episode_id
+    WHERE e.season_id = $1
+    GROUP BY e.episode_id
+    ORDER BY e.episode_number
+  `, [season.season_id]);
 
-      episodesBySeason[season.season_number] = episodesResult.rows;
-    }
+  season.episodes = episodesResult.rows.map(ep => ({
+    ...ep,
+    avg_rating: Number(ep.avg_rating),          // convert string to number
+    rating_count: Number(ep.rating_count)       // for showing # of votes if needed
+  }));
+}
 
     // Flatten episodes into one array with a 'season' field for frontend convenience
     const allEpisodes = [];

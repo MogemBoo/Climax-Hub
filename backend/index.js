@@ -12,8 +12,9 @@ import recommendationsRoutes from './routes/recommendations.js';
 import postRoutes from './routes/posts.js';
 import reviewsRoutes from './routes/reviews.js';
 import genreRoutes from "./routes/genre.js";
-import cors from 'cors';
+import adminRoutes from './routes/admin.js';
 
+import cors from 'cors';
 
 dotenv.config();
 
@@ -34,6 +35,8 @@ app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use("/api/genres", genreRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('running');

@@ -207,4 +207,52 @@ export const getAllReviews = async (req, res) => {
     console.error("Error fetching ratings:", err);
     res.status(500).json({ error: "Failed to fetch ratings" });
   }
+}
+export const addEpisodeRating = async (req, res) => {
+  const { user_id, episode_id, rating } = req.body;
+
+  if (!user_id || !episode_id || rating === undefined) {
+    return res.status(400).json({ message: "Missing required fields (user_id, episode_id, rating)" });
+  }
+
+  // Validate: must be between 1–5
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ message: "Rating must be between 1 and 5" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO episode_review (user_id, episode_id, rating)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id, episode_id)
+       DO UPDATE SET rating = EXCLUDED.rating, created_at = NOW()
+       RETURNING *`,
+      [user_id, episode_id, rating]
+    );
+
+    res.status(200).json({ message: "Episode rating saved", review: result.rows[0] });
+  } catch (err) {
+    console.error("Error in addEpisodeRating:", err);
+    res.status(500).json({ message: "Server error while saving episode rating", error: err.message });
+  }
+};
+
+export const getUserEpisodeRatings = async (req, res) => {
+  const { user_id, series_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT er.episode_id, er.rating
+       FROM episode_review er
+       JOIN episode e ON e.episode_id = er.episode_id
+       JOIN season s ON s.season_id = e.season_id
+       WHERE er.user_id = $1 AND s.series_id = $2`,
+      [user_id, series_id]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching user episode ratings:", err);
+    res.status(500).json({ message: "Error fetching user episode ratings" });
+  }
 };
