@@ -13,6 +13,7 @@ import postRoutes from './routes/posts.js';
 import reviewsRoutes from './routes/reviews.js';
 import genreRoutes from "./routes/genre.js";
 import adminRoutes from './routes/admin.js';
+import recentlyViewedRoutes from './routes/recentlyViewed.js';
 
 import cors from 'cors';
 
@@ -36,6 +37,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use("/api/genres", genreRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/recently-viewed', recentlyViewedRoutes);
 
 
 app.get('/', (req, res) => {

@@ -1,5 +1,6 @@
 import pool from '../db.js';
 import { getOrCreateGenre } from '../utils/helpers.js';
+import { addRecentlyViewed } from '../utils/recentlyViewed.js';
 
 //add movie
 export async function addFullMovie(req, res) {
@@ -99,6 +100,9 @@ export async function getMovieById(req, res) {
     if (movieResult.rowCount === 0) {
       return res.status(404).json({ error: 'Movie not found' });
     }
+
+    const userId = parseInt(req.query.user_id, 10);
+    if (!isNaN(userId)) await addRecentlyViewed(userId, movieId, 'movie');
 
     const movie = movieResult.rows[0];
 

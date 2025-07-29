@@ -24,6 +24,8 @@ const HomePage = () => {
   const [watchlist, setWatchlist] = useState([]);
   const [comingSoon, setComingSoon] = useState([]);
   const [ongoingSeries, setOngoingSeries] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+
 
 
 
@@ -40,6 +42,7 @@ const HomePage = () => {
   const recSeriesScrollRef = useRef(null);
   const recentMovieScrollRef = useRef(null);
   const recentSeriesScrollRef = useRef(null);
+  const recentlyViewedScrollRef = useRef(null);
 
   // Fetch trending movies
   useEffect(() => {
@@ -132,6 +135,14 @@ const HomePage = () => {
       .catch((err) => console.error("Error searching movies:", err));
   };
 
+  useEffect(() => {
+    if (!user) return;
+    fetch(`http://localhost:5000/api/recently-viewed/${user.user_id}`)
+      .then(res => res.json())
+      .then(data => setRecentlyViewed(data))
+      .catch(err => console.error('Error fetching recently viewed:', err));
+  }, [user]);
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
@@ -186,6 +197,16 @@ const HomePage = () => {
           />
         </>
       )}
+
+      {user && recentlyViewed.length > 0 && (
+  <Section
+    title="Recently Viewed"
+    data={recentlyViewed}
+    scrollRef={recentlyViewedScrollRef}
+    onCardClick={(type, id) => handleCardClick(type, id)}
+    isSeries={false}
+  />
+)}
 
 
       <Section

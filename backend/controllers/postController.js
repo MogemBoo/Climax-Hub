@@ -33,10 +33,10 @@ export const createPost = async (req, res) => {
 
 // Create a new poll
 export const createPoll = async (req, res) => {
-  const { user_id, title, content, options } = req.body;
+  const { user_id, title, options } = req.body;
 
-  if (!user_id || !title?.trim() || !content?.trim() || !options?.length) {
-    return res.status(400).json({ message: "User ID, title, content, and options are required." });
+  if (!user_id || !title?.trim() || !options?.length) {
+    return res.status(400).json({ message: "User ID, title, and options are required." });
   }
 
   try {
@@ -44,7 +44,7 @@ export const createPoll = async (req, res) => {
       `INSERT INTO post_n_poll (user_id, title, content, has_poll)
        VALUES ($1, $2, $3, true)
        RETURNING post_id`,
-      [user_id, title, content]
+      [user_id, title, ""]
     );
 
     const postId = result.rows[0].post_id;

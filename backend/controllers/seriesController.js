@@ -1,5 +1,6 @@
 import pool from '../db.js';
 import { getOrCreateGenre } from '../utils/helpers.js';
+import { addRecentlyViewed } from '../utils/recentlyViewed.js';
 
 export async function addFullSeries(req, res) {
   const {
@@ -118,6 +119,9 @@ export async function getSeriesById(req, res) {
     if (seriesResult.rowCount === 0) {
       return res.status(404).json({ error: 'Series not found' });
     }
+
+    const userId = parseInt(req.query.user_id, 10);
+    if (!isNaN(userId)) await addRecentlyViewed(userId, seriesId, 'series');
 
     const series = seriesResult.rows[0];
 

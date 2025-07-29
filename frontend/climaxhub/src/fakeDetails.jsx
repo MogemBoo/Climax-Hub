@@ -70,43 +70,48 @@ const Details = () => {
   const [selectedRating, setSelectedRating] = useState(null);
   const [hoveredChartRating, setHoveredChartRating] = useState(null);
 
+
+  // Fetch details based on the current page (movie or series)
   const fetchDetails = async () => {
-    const isSeriesPage = location.pathname.includes('/series/');
-    // Determine the type string for API calls: 'movies' or 'series'
-    const apiEndpointType = isSeriesPage ? 'series' : 'movies';
-    // Determine the type string for local state and display: 'movie' or 'series' (singular)
-    setType(isSeriesPage ? 'series' : 'movie');
+  const isSeriesPage = location.pathname.includes('/series/');
+  const apiEndpointType = isSeriesPage ? 'series' : 'movies';
+  setType(isSeriesPage ? 'series' : 'movie');
 
-    try {
-      // Fetch main movie/series details
-      const res = await fetch(`http://localhost:5000/api/${apiEndpointType}/${id}`);
-      const json = await res.json();
-      setData(json);
+  // Get logged-in user
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userQuery = user ? `?user_id=${user.user_id}` : "";
 
-      // Fetch star rating counts for both movies and series
-      const starCountRes = await fetch(`http://localhost:5000/api/${apiEndpointType}/${id}/per-star-user-count`);
-      if (starCountRes.ok) {
-        const starCountJson = await starCountRes.json();
-        const fullCounts = Array.from({ length: 10 }, (_, i) => ({ rating: i + 1, count: 0 }));
-        starCountJson.forEach(item => {
-          const index = parseInt(item.rating) - 1;
-          if (index >= 0 && index < 10) {
-            fullCounts[index].count = parseInt(item.count);
-          }
-        });
-        setStarRatingCounts(fullCounts);
-      } else {
-        // If star count endpoint doesn't exist or fails, reset counts
-        console.warn(`Could not fetch star counts for ${apiEndpointType} with ID ${id}.`);
-        setStarRatingCounts([]);
-      }
+  try {
+    // Fetch main movie/series details (also logs recently viewed if user is provided)
+    const res = await fetch(`http://localhost:5000/api/${apiEndpointType}/${id}${userQuery}`);
+    const json = await res.json();
+    setData(json);
 
-    } catch (err) {
-      console.error("Failed to fetch data", err);
-      setData(null); // Clear data on error
-      setStarRatingCounts([]); // Clear star counts on error
+    // Fetch star rating counts for both movies and series
+    const starCountRes = await fetch(`http://localhost:5000/api/${apiEndpointType}/${id}/per-star-user-count`);
+    if (starCountRes.ok) {
+      const starCountJson = await starCountRes.json();
+      const fullCounts = Array.from({ length: 10 }, (_, i) => ({ rating: i + 1, count: 0 }));
+      starCountJson.forEach(item => {
+        const index = parseInt(item.rating) - 1;
+        if (index >= 0 && index < 10) {
+          fullCounts[index].count = parseInt(item.count);
+        }
+      });
+      setStarRatingCounts(fullCounts);
+    } else {
+      // If star count endpoint doesn't exist or fails, reset counts
+      console.warn(`Could not fetch star counts for ${apiEndpointType} with ID ${id}.`);
+      setStarRatingCounts([]);
     }
-  };
+
+  } catch (err) {
+    console.error("Failed to fetch data", err);
+    setData(null); // Clear data on error
+    setStarRatingCounts([]); // Clear star counts on error
+  }
+};
+
 
   useEffect(() => {
     fetchDetails();
@@ -355,6 +360,36 @@ const Details = () => {
       <div className="background-blur" style={{ backgroundImage: `url(${data.poster_url})` }}></div>
 
       <div className="extras">
+
+        {/* Episodes Section */}
+        {type === 'series' && data.seasons && data.seasons.length > 0 && (
+          <>
+            <h2 className="section-title">
+              Episodes ({data.seasons.reduce((acc, s) => acc + (s.episodes ? s.episodes.length : 0), 0)})
+            </h2>
+            <div className="top-episodes">
+              {data.seasons
+                .flatMap(s => s.episodes || [])
+                .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+                .slice(0, 2)
+                .map(ep => (
+                  <div key={ep.episode_id} className="top-episode">
+                    <strong>Episode {ep.episode_number}: {ep.title}</strong>
+                    {ep.rating && <span className="episode-rating">⭐ {ep.rating}</span>}
+                  </div>
+                ))}
+            </div>
+            <div>
+            <button
+              className="view-episodes-btn"
+              onClick={() => navigate(`/series/${id}/episodes`)}
+            >
+              View All Episodes
+            </button>
+            </div>
+          </>
+        )}
+
         <h2 className="section-title">{type} Cast</h2>
         <div className="people-grid">
           {(data.cast || []).map(person => (
@@ -443,34 +478,6 @@ const Details = () => {
             {selectedRating !== null ? `No comments for ${selectedRating} stars.` : `No comments yet. Be the first to review this ${type}!`}
           </p>
         )}
-
-        {/* Episodes Section */}
-{type === 'series' && data.seasons && data.seasons.length > 0 && (
-  <>
-    <h2 className="section-title">
-      Episodes ({data.seasons.reduce((acc, s) => acc + (s.episodes ? s.episodes.length : 0), 0)})
-    </h2>
-    <div className="top-episodes">
-      {data.seasons
-        .flatMap(s => s.episodes || [])
-        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-        .slice(0, 2)
-        .map(ep => (
-          <div key={ep.episode_id} className="top-episode">
-            <strong>Episode {ep.episode_number}: {ep.title}</strong>
-            {ep.rating && <span className="episode-rating">⭐ {ep.rating}</span>}
-          </div>
-        ))}
-    </div>
-    <button
-      className="view-episodes-btn"
-      onClick={() => navigate(`/series/${id}/episodes`)}
-    >
-      View All Episodes
-    </button>
-  </>
-)}
-
       </div>
     </div>
   );
