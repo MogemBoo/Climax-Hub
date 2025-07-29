@@ -9,10 +9,8 @@ const TopBar = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Separate states for user menu and search suggestions dropdowns
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
@@ -26,7 +24,7 @@ const TopBar = () => {
     navigate("/");
   };
 
-  // Fetch search suggestions with debounce
+  // Fetch both movies & series with debounce
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
@@ -36,37 +34,42 @@ const TopBar = () => {
       return;
     }
 
-    debounceTimer.current = setTimeout(() => {
-      fetch(`http://localhost:5000/api/movies/search?query=${encodeURIComponent(searchQuery)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setSearchResults(data || []);
-          setShowSearchDropdown(true);
-        })
-        .catch((err) => {
-          console.error("Error searching movies:", err);
-          setSearchResults([]);
-          setShowSearchDropdown(false);
-        });
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const [moviesRes, seriesRes] = await Promise.all([
+          fetch(`http://localhost:5000/api/movies/search?query=${encodeURIComponent(searchQuery)}`),
+          fetch(`http://localhost:5000/api/series/search?query=${encodeURIComponent(searchQuery)}`)
+        ]);
+
+        const movies = await moviesRes.json();
+        const series = await seriesRes.json();
+
+        // Merge and label results
+        const combined = [
+          ...(movies || []).map((m) => ({ ...m, type: "movie" })),
+          ...(series || []).map((s) => ({ ...s, type: "series" }))
+        ];
+
+        setSearchResults(combined);
+        setShowSearchDropdown(true);
+      } catch (err) {
+        console.error("Error searching:", err);
+        setSearchResults([]);
+        setShowSearchDropdown(false);
+      }
     }, 300);
 
     return () => clearTimeout(debounceTimer.current);
   }, [searchQuery]);
 
-  // Close dropdowns if clicked outside relevant elements
-
   useEffect(() => {
-  const handleUserUpdate = () => {
-    const saved = localStorage.getItem("user");
-    setUser(saved ? JSON.parse(saved) : null);
-  };
-
-  window.addEventListener("user-updated", handleUserUpdate);
-
-  return () => {
-    window.removeEventListener("user-updated", handleUserUpdate);
-  };
-}, []);
+    const handleUserUpdate = () => {
+      const saved = localStorage.getItem("user");
+      setUser(saved ? JSON.parse(saved) : null);
+    };
+    window.addEventListener("user-updated", handleUserUpdate);
+    return () => window.removeEventListener("user-updated", handleUserUpdate);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -85,7 +88,6 @@ const TopBar = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // On pressing Enter in input or clicking Search button, go to search results page
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim() === "") return;
@@ -93,38 +95,26 @@ const TopBar = () => {
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
-  // Navigate to movie detail page on clicking a suggestion
-  const handleSuggestionClick = (movie_id) => {
+  // Navigate based on type
+  const handleSuggestionClick = (id, type) => {
     setShowSearchDropdown(false);
     setSearchQuery("");
     setSearchResults([]);
-    navigate(`/details/movies/${movie_id}`);
+    navigate(`/details/${type === "movie" ? "movies" : "series"}/${id}`);
   };
 
   return (
     <div className="top-bar">
       <div className="right-controls">
-        <button
-          type="button"
-          className="top-series-btn"
-          onClick={() => navigate("/top-series")}
-        >
+        <button type="button" className="top-series-btn" onClick={() => navigate("/top-series")}>
           Top Series
         </button>
-        <button
-          type="button"
-          className="top-movies-btn"
-          onClick={() => navigate("/top-movies")}
-        >
+        <button type="button" className="top-movies-btn" onClick={() => navigate("/top-movies")}>
           Top Movies
         </button>
 
         {!user ? (
-          <button
-            type="button"
-            className="login-btn"
-            onClick={() => navigate("/login")}
-          >
+          <button type="button" className="login-btn" onClick={() => navigate("/login")}>
             Login
           </button>
         ) : (
@@ -138,37 +128,16 @@ const TopBar = () => {
             </button>
             {showUserDropdown && (
               <div className="user-dropdown">
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowUserDropdown(false);
-                    navigate("/your-profile");
-                  }}
-                >
+                <button className="dropdown-item" onClick={() => { setShowUserDropdown(false); navigate("/your-profile"); }}>
                   Your Profile
                 </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowUserDropdown(false);
-                    navigate("/your-watchlist");
-                  }}
-                >
+                <button className="dropdown-item" onClick={() => { setShowUserDropdown(false); navigate("/your-watchlist"); }}>
                   Your Watchlist
                 </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowUserDropdown(false);
-                    navigate("/your-ratings");
-                  }}
-                >
+                <button className="dropdown-item" onClick={() => { setShowUserDropdown(false); navigate("/your-ratings"); }}>
                   Your Ratings
                 </button>
-                <button
-                  className="dropdown-item logout"
-                  onClick={handleLogout}
-                >
+                <button className="dropdown-item logout" onClick={handleLogout}>
                   Logout
                 </button>
               </div>
@@ -177,28 +146,13 @@ const TopBar = () => {
         )}
       </div>
 
-      <form
-        onSubmit={handleSearchSubmit}
-        className="center-search-form"
-        ref={searchInputRef}
-        style={{ position: "relative" }}
-      >
+      <form onSubmit={handleSearchSubmit} className="center-search-form" ref={searchInputRef} style={{ position: "relative" }}>
         {user && user.is_admin && (
-          <button
-            type="button"
-            className="admin-btn"
-            onClick={() => navigate("/admin")}
-            style={{ marginRight: "0.5rem" }}
-          >
+          <button type="button" className="admin-btn" onClick={() => navigate("/admin")} style={{ marginRight: "0.5rem" }}>
             Admin
           </button>
         )}
-        <button
-          type="button"
-          className="community-btn"
-          onClick={() => navigate("/community")}
-          style={{ marginRight: "0.5rem" }}
-        >
+        <button type="button" className="community-btn" onClick={() => navigate("/community")} style={{ marginRight: "0.5rem" }}>
           Community
         </button>
         <input
@@ -216,20 +170,18 @@ const TopBar = () => {
 
         {showSearchDropdown && searchResults.length > 0 && (
           <div className="search-suggestions-dropdown">
-            {searchResults.map((movie) => (
+            {searchResults.map((item) => (
               <div
-                key={movie.movie_id}
+                key={item.movie_id || item.series_id}
                 className="search-suggestion-card"
-                onClick={() => handleSuggestionClick(movie.movie_id)}
+                onClick={() => handleSuggestionClick(item.movie_id || item.series_id, item.type)}
               >
-                <img
-                  src={movie.poster_url}
-                  alt={movie.title}
-                  className="suggestion-poster"
-                />
+                <img src={item.poster_url} alt={item.title} className="suggestion-poster" />
                 <div className="suggestion-info">
-                  <p className="suggestion-title">{movie.title}</p>
-                  <p className="suggestion-subinfo">Rating: {movie.rating}</p>
+                  <p className="suggestion-title">{item.title}</p>
+                  <p className="suggestion-subinfo">
+                    {item.type === "movie" ? "🎬 Movie" : "📺 Series"} • Rating: {item.rating}
+                  </p>
                 </div>
               </div>
             ))}

@@ -14,20 +14,37 @@ const Genre = () => {
 
   // Fetch all available genres
   useEffect(() => {
-    const fetchAllGenres = async () => {
-      try {
-        // Add common genres that we know exist
-        const commonGenres = ['Action', 'Drama', 'Comedy', 'Thriller', 'Romance', 'Horror', 'Sci-Fi', 'Adventure', 'Crime', 'Mystery', 'Fantasy', 'Animation', 'Family', 'War', 'Western', 'Documentary', 'Musical', 'Sport', 'History', 'Biography'];
-        setAllGenres(commonGenres.sort());
-      } catch (error) {
-        console.error('Error setting genres:', error);
-        const commonGenres = ['Action', 'Drama', 'Comedy', 'Thriller', 'Romance', 'Horror', 'Sci-Fi', 'Adventure', 'Crime', 'Mystery', 'Fantasy', 'Animation', 'Family', 'War', 'Western', 'Documentary', 'Musical', 'Sport', 'History', 'Biography'];
-        setAllGenres(commonGenres);
-      }
-    };
+  const fetchAllGenres = async () => {
+    
 
-    fetchAllGenres();
-  }, []);
+    try {
+      const res = await fetch("http://localhost:5000/api/genres");
+      if (!res.ok) throw new Error("Failed to fetch genres");
+      const data = await res.json();
+
+      // Normalize response (handle both arrays & objects with `genres` key)
+      let genres = [];
+      if (Array.isArray(data)) {
+        genres = data.map(g => (typeof g === "string" ? g : g.name));
+      } else if (data.genres) {
+        genres = data.genres.map(g => (typeof g === "string" ? g : g.name));
+      }
+
+      // If API returned nothing, fallback
+      if (genres.length === 0) {
+        genres = fallbackGenres;
+      }
+
+      setAllGenres(genres.sort());
+    } catch (error) {
+      console.error("Error fetching genres:", error);
+      setAllGenres(fallbackGenres.sort());
+    }
+  };
+
+  fetchAllGenres();
+}, []);
+
 
   // Fetch content based on selected genres
   useEffect(() => {
