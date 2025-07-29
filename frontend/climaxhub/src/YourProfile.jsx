@@ -13,6 +13,9 @@ const YourProfile = () => {
   const [editingPostId, setEditingPostId] = useState(null);
   const [editPostTitle, setEditPostTitle] = useState("");
   const [editPostContent, setEditPostContent] = useState("");
+  const [showPollPopup, setShowPollPopup] = useState(false);
+  const [pollTitle, setPollTitle] = useState("");
+  const [pollOptions, setPollOptions] = useState([""]);
 
   const [expandedReviews, setExpandedReviews] = useState({});
 
@@ -59,6 +62,35 @@ const YourProfile = () => {
       alert("Error adding post: " + err.message);
     }
   };
+  const handleCreatePoll = async () => {
+    if (!pollTitle.trim() || pollOptions.some(opt => !opt.trim())) {
+      alert("Poll title and all options are required.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/polls", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          title: pollTitle,
+          options: pollOptions,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to create poll");
+
+      alert("Poll created successfully!");
+      setShowPollPopup(false);
+      setPollTitle("");
+      setPollOptions([""]);
+      loadUser();
+    } catch (err) {
+      alert("Error creating poll: " + err.message);
+    }
+  };
+
 
   const handleSaveReview = async (reviewId, type) => {
     try {
@@ -271,10 +303,20 @@ const YourProfile = () => {
       <div className="profile-section">
         <div className="post-header">
           <h2>Your Posts</h2>
-          <button className="add-post-btn" onClick={() => setShowPostPopup(true)}>
-            ➕ Add Post
-          </button>
+          <div>
+            <button className="add-post-btn" onClick={() => setShowPostPopup(true)}>
+              ➕ Add Post
+            </button>
+            <button
+              className="add-post-btn"
+              style={{ marginLeft: "10px" }}
+              onClick={() => setShowPollPopup(true)}
+            >
+              📊 Create Poll
+            </button>
+          </div>
         </div>
+
         {user.posts?.length ? (
           <div>
             {user.posts.map((post) => (
@@ -365,6 +407,60 @@ const YourProfile = () => {
           </div>
         </div>
       )}
+      {showPollPopup && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+            <h3>Create New Poll</h3>
+            <input
+              type="text"
+              placeholder="Poll title"
+              value={pollTitle}
+              onChange={(e) => setPollTitle(e.target.value)}
+              className="popup-input"
+            />
+            <div>
+              {pollOptions.map((opt, index) => (
+                <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "0.5rem" }}>
+                  <input
+                    type="text"
+                    value={opt}
+                    onChange={(e) => {
+                      const newOptions = [...pollOptions];
+                      newOptions[index] = e.target.value;
+                      setPollOptions(newOptions);
+                    }}
+                    placeholder={`Option ${index + 1}`}
+                    className="popup-input"
+                  />
+                  <button
+                    className="option-delete-btn"
+                    onClick={() => setPollOptions(pollOptions.filter((_, i) => i !== index))}
+                  >
+                    ×
+                  </button>
+
+                </div>
+              ))}
+            </div>
+            <button
+              className="add-post-btn"
+              style={{ marginBottom: "1rem" }}
+              onClick={() => setPollOptions([...pollOptions, ""])}
+            >
+              ➕ Add Option
+            </button>
+            <div className="popup-buttons">
+              <button className="popup-submit" onClick={handleCreatePoll}>
+                Submit
+              </button>
+              <button className="popup-cancel" onClick={() => setShowPollPopup(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
