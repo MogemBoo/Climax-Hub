@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./Community.css";
+import penIcon from "../pen.png";
+import verifiedIcon from "../verified.png";
+
 
 const Community = () => {
   const [posts, setPosts] = useState([]);
@@ -55,6 +58,27 @@ const Community = () => {
       }
     } catch (err) {
       alert("Failed to vote: " + err.message);
+    }
+  };
+
+  const handleDelete = async (postId, userId) => {
+    if (!user) return alert("Please login to delete a post");
+    if (user.is_admin !== true && user.user_id !== userId) return alert("You do not have permission to delete this post");
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${postId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.user_id }),
+      });
+      if (!res.ok) throw new Error("Failed to delete post");
+      setPosts((prev) => prev.filter((p) => p.post_id !== postId));
+      if (modalPost && modalPost.post_id === postId) {
+        setModalPost(null);
+        setModalComments([]);
+      }
+    } catch (err) {
+      alert("Failed to delete post: " + err.message);
     }
   };
 
@@ -126,6 +150,7 @@ const Community = () => {
               <div className="community-post-username">
                 <img src={post.pfp || "/person.jpg"} alt="User" className="pfp-img" />
                 {post.username}
+                {post.verified && (<img src={verifiedIcon} alt="User" className="checkmark-icon" />)}
               </div>
               <div className="community-post-title">{post.title}</div>
               <div className="community-post-content">
@@ -141,6 +166,8 @@ const Community = () => {
                   {expanded ? "See less" : "See more"}
                 </button>
               )}
+              {/*delete*/}
+
 
               {/* Voting Section */}
               <div className="post-voting">
@@ -166,7 +193,11 @@ const Community = () => {
                 >
                   💬 Comment
                 </button>
-
+                {user && (user.user_id == post.user_id || (user.is_admin)) && (
+                <button className="delete-toggle-btn" onClick={() => handleDelete(post.post_id, post.user_id)}>
+                  Delete
+                </button>
+                  )}
                 {showCommentFormForPost && (
                   <div className="comment-form">
                     <textarea
@@ -217,7 +248,14 @@ const Community = () => {
                             className="pfp-img"
                           />
                           {comment.username}
+                          {user && (user.user_id == comment.user_id) && (
+                            <img src={penIcon} alt="User" className="checkmark-icon" />
+                          )}
+                          {user && (comment.is_admin == true) && (
+                            <img src={verifiedIcon} alt="User" className="checkmark-icon" />
+                          )}
                         </div>
+                        
                         <div className="comment-content">{comment.content}</div>
                         <div className="comment-date">
                           {new Date(comment.created_at).toLocaleDateString()}

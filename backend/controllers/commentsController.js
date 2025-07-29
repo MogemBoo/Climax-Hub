@@ -52,7 +52,7 @@ export const getComments = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT c.comment_id, c.post_id, c.content, c.created_at,
+      `SELECT c.comment_id, c.post_id, c.content, c.created_at,c.user_id,
               u.username, u.pfp
        FROM post_comment c
        JOIN users u ON c.user_id = u.user_id
@@ -67,5 +67,26 @@ export const getComments = async (req, res) => {
   } catch (err) {
     console.error("Error fetching comments:", err);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Delete a comment
+export const deleteComment = async (req, res) => {
+  const { commentId } = req.params;
+
+  if (!commentId) return res.status(400).json({ message: "Comment ID is required." });
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM post_comment WHERE comment_id = $1 RETURNING comment_id`,
+      [commentId]
+    );
+
+    if (result.rows.length === 0) return res.status(404).json({ message: "Comment not found." });
+
+    res.json({ message: "Comment deleted successfully.", comment_id: commentId });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).json({ message: "Failed to delete comment." });
   }
 };
