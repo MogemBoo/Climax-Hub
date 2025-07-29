@@ -1,5 +1,13 @@
 import pool from "../db.js";
 
+// Helper to convert pfp from bytea to base64 (if needed)
+const convertPfp = (row) => {
+  if (row.pfp) {
+    row.pfp = `data:image/png;base64,${row.pfp.toString("base64")}`;
+  }
+  return row;
+};
+
 // Create a new post
 export const createPost = async (req, res) => {
   const { user_id, title, content } = req.body;
@@ -12,7 +20,7 @@ export const createPost = async (req, res) => {
     const result = await pool.query(
       `INSERT INTO post_n_poll (user_id, title, content)
        VALUES ($1, $2, $3)
-       RETURNING post_id, user_id, title, content, created_at, has_poll, upvote, downvote`,
+       RETURNING post_id, user_id, title, content, created_at, has_poll`,
       [user_id, title, content]
     );
 
@@ -23,7 +31,7 @@ export const createPost = async (req, res) => {
   }
 };
 
-//create a new poll
+// Create a new poll
 export const createPoll = async (req, res) => {
   const { user_id, title, content, options } = req.body;
 
@@ -57,38 +65,68 @@ export const createPoll = async (req, res) => {
   }
 };
 
-// Get all posts (optionally by user)
+// Get all posts with aggregated votes & user's vote
 export const getPosts = async (req, res) => {
   const userId = req.query.user_id;
 
   try {
-    let query = `SELECT p.post_id, p.user_id, u.username, p.title, p.content, p.created_at, p.has_poll, p.upvote, p.downvote
-                 FROM post_n_poll p
-                 JOIN users u ON p.user_id = u.user_id`;
-    let params = [];
+    let query = `
+      SELECT 
+        p.post_id, 
+        p.user_id, 
+        u.username, 
+        u.pfp, 
+        p.title, 
+        p.content, 
+        p.created_at, 
+        p.has_poll,
+        COALESCE(SUM(CASE WHEN v.vote_type = 1 THEN 1 ELSE 0 END), 0) AS upvote,
+        COALESCE(SUM(CASE WHEN v.vote_type = -1 THEN 1 ELSE 0 END), 0) AS downvote,
+        COALESCE(MAX(CASE WHEN v.user_id = $1 THEN v.vote_type ELSE 0 END), 0) AS user_vote
+      FROM post_n_poll p
+      JOIN users u ON p.user_id = u.user_id
+      LEFT JOIN post_vote v ON p.post_id = v.post_id
+      GROUP BY p.post_id, u.username, u.pfp
+      ORDER BY p.created_at DESC
+    `;
+    const postsResult = await pool.query(query, [userId || 0]);
+    const posts = postsResult.rows.map((row) => {
+      if (row.pfp) row.pfp = `data:image/png;base64,${row.pfp.toString("base64")}`;
+      return row;
+    });
 
-    if (userId) {
-      query += ` WHERE p.user_id = $1`;
-      params.push(userId);
-    }
+    // Fetch top 3 comments
+    if (posts.length === 0) return res.json([]);
+    const postIds = posts.map((p) => p.post_id);
+    const commentsRes = await pool.query(
+      `SELECT c.comment_id, c.post_id, c.content, c.created_at, u.username, u.pfp
+       FROM post_comment c
+       JOIN users u ON c.user_id = u.user_id
+       WHERE c.post_id = ANY($1::int[])
+       ORDER BY c.created_at DESC`,
+      [postIds]
+    );
 
-    query += ` ORDER BY p.created_at DESC`;
+    const comments = commentsRes.rows.map((row) => {
+      if (row.pfp) row.pfp = `data:image/png;base64,${row.pfp.toString("base64")}`;
+      return row;
+    });
 
-    const result = await pool.query(query, params);
+    const postsWithComments = posts.map((post) => ({
+      ...post,
+      comments: comments.filter((c) => c.post_id === post.post_id).slice(0, 3),
+    }));
 
-    res.json(result.rows);
+    res.json(postsWithComments);
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ message: "Failed to fetch posts." });
   }
 };
 
-//update existing post
+// Update a post
 export const updatePost = async (req, res) => {
   const { postId } = req.params;
-  if (!postId) {
-    return res.status(400).json({ message: "Post ID is required." });
-  }
   const { title, content } = req.body;
 
   if (!postId || !title?.trim() || !content?.trim()) {
@@ -100,13 +138,11 @@ export const updatePost = async (req, res) => {
       `UPDATE post_n_poll
        SET title = $1, content = $2
        WHERE post_id = $3
-       RETURNING post_id, user_id, title, content, created_at, has_poll, upvote, downvote`,
+       RETURNING post_id, user_id, title, content, created_at, has_poll`,
       [title, content, postId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Post not found." });
-    }
+    if (result.rows.length === 0) return res.status(404).json({ message: "Post not found." });
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -119,9 +155,7 @@ export const updatePost = async (req, res) => {
 export const deletePost = async (req, res) => {
   const { postId } = req.params;
 
-  if (!postId) {
-    return res.status(400).json({ message: "Post ID is required." });
-  }
+  if (!postId) return res.status(400).json({ message: "Post ID is required." });
 
   try {
     const result = await pool.query(
@@ -131,9 +165,7 @@ export const deletePost = async (req, res) => {
       [postId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Post not found." });
-    }
+    if (result.rows.length === 0) return res.status(404).json({ message: "Post not found." });
 
     res.json({ message: "Post deleted successfully.", post_id: postId });
   } catch (error) {
@@ -142,42 +174,67 @@ export const deletePost = async (req, res) => {
   }
 };
 
-export const upvotePost = async (req, res) => {
+// Vote or unvote a post
+export const votePost = async (req, res) => {
   const { post_id } = req.params;
+  const { user_id, vote_type } = req.body; // 1 = upvote, -1 = downvote
 
-  try {
-    const result = await pool.query(
-      "UPDATE post_n_poll SET upvote = upvote + 1 WHERE post_id = $1 RETURNING *",
-      [post_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error("Error in upvotePost:", err);
-    res.status(500).json({ error: "Server error" });
+  if (!user_id || ![1, -1].includes(vote_type)) {
+    return res.status(400).json({ error: "Invalid vote data" });
   }
-};
-
-export const downvotePost = async (req, res) => {
-  const { post_id } = req.params;
 
   try {
-    const result = await pool.query(
-      "UPDATE post_n_poll SET downvote = downvote + 1 WHERE post_id = $1 RETURNING *",
+    // Check if user already voted
+    const existing = await pool.query(
+      "SELECT vote_type FROM post_vote WHERE post_id = $1 AND user_id = $2",
+      [post_id, user_id]
+    );
+
+    if (existing.rows.length > 0) {
+      const currentVote = existing.rows[0].vote_type;
+      if (currentVote === vote_type) {
+        // Same vote clicked again → remove it
+        await pool.query(
+          "DELETE FROM post_vote WHERE post_id = $1 AND user_id = $2",
+          [post_id, user_id]
+        );
+      } else {
+        // Different vote → update it
+        await pool.query(
+          "UPDATE post_vote SET vote_type = $1 WHERE post_id = $2 AND user_id = $3",
+          [vote_type, post_id, user_id]
+        );
+      }
+    } else {
+      // No previous vote → insert new
+      await pool.query(
+        "INSERT INTO post_vote (post_id, user_id, vote_type) VALUES ($1, $2, $3)",
+        [post_id, user_id, vote_type]
+      );
+    }
+
+    // Return updated counts & user's current vote
+    const countsRes = await pool.query(
+      `SELECT 
+         COALESCE(SUM(CASE WHEN vote_type = 1 THEN 1 ELSE 0 END), 0) AS upvote,
+         COALESCE(SUM(CASE WHEN vote_type = -1 THEN 1 ELSE 0 END), 0) AS downvote
+       FROM post_vote WHERE post_id = $1`,
       [post_id]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Post not found" });
-    }
+    const userVoteRes = await pool.query(
+      "SELECT vote_type FROM post_vote WHERE post_id = $1 AND user_id = $2",
+      [post_id, user_id]
+    );
 
-    res.json(result.rows[0]);
+    res.json({
+      post_id,
+      upvote: countsRes.rows[0].upvote,
+      downvote: countsRes.rows[0].downvote,
+      user_vote: userVoteRes.rows.length ? userVoteRes.rows[0].vote_type : 0,
+    });
   } catch (err) {
-    console.error("Error in downvotePost:", err);
+    console.error("Error in votePost:", err);
     res.status(500).json({ error: "Server error" });
   }
 };

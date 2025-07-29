@@ -1,10 +1,19 @@
 import pool from "../db.js";
 
+// Helper: convert bytea PFP to Base64
+function convertPfp(row) {
+  if (row.pfp) {
+    return { ...row, pfp: `data:image/png;base64,${row.pfp.toString("base64")}` };
+  }
+  return { ...row, pfp: null };
+}
+
+// Add a comment
 export const addComment = async (req, res) => {
   const { postId } = req.params;
   const { user_id, content } = req.body;
 
-  if (!user_id || !content || !postId) {
+  if (!user_id || !content?.trim() || !postId) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
@@ -12,23 +21,39 @@ export const addComment = async (req, res) => {
     const result = await pool.query(
       `INSERT INTO post_comment (post_id, user_id, content, created_at)
        VALUES ($1, $2, $3, NOW())
-       RETURNING *`,
+       RETURNING comment_id, post_id, user_id, content, created_at`,
       [postId, user_id, content]
     );
 
-    res.status(201).json(result.rows[0]);
+    // Fetch username + pfp for the new comment
+    const userData = await pool.query(
+      `SELECT username, pfp FROM users WHERE user_id = $1`,
+      [user_id]
+    );
+
+    const enrichedComment = {
+      ...result.rows[0],
+      username: userData.rows[0].username,
+      pfp: userData.rows[0].pfp
+        ? `data:image/png;base64,${userData.rows[0].pfp.toString("base64")}`
+        : null,
+    };
+
+    res.status(201).json(enrichedComment);
   } catch (err) {
     console.error("Error adding comment:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Get all comments for a post
 export const getComments = async (req, res) => {
   const { postId } = req.params;
 
   try {
     const result = await pool.query(
-      `SELECT c.*, u.username
+      `SELECT c.comment_id, c.post_id, c.content, c.created_at,
+              u.username, u.pfp
        FROM post_comment c
        JOIN users u ON c.user_id = u.user_id
        WHERE c.post_id = $1
@@ -36,7 +61,9 @@ export const getComments = async (req, res) => {
       [postId]
     );
 
-    res.json(result.rows);
+    // Convert all pfps
+    const commentsWithPfp = result.rows.map(convertPfp);
+    res.json(commentsWithPfp);
   } catch (err) {
     console.error("Error fetching comments:", err);
     res.status(500).json({ message: "Internal server error" });

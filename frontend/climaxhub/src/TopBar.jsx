@@ -160,7 +160,7 @@ const TopBar = () => {
                   className="dropdown-item"
                   onClick={() => {
                     setShowUserDropdown(false);
-                    navigate("/ratings");
+                    navigate("/your-ratings");
                   }}
                 >
                   Your Ratings

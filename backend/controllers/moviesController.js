@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import { getOrCreateGenre } from '../utils/helpers.js';
 
 //add movie
 export async function addFullMovie(req, res) {
@@ -20,17 +21,15 @@ export async function addFullMovie(req, res) {
 
     const movieId = movieResult.rows[0].movie_id;
 
-    // Incert genres
+    // Insert genres
     for (const genreName of genres || []) {
-      let genreRes = await client.query(`SELECT genre_id FROM genre WHERE name=$1`, [genreName]);
-      let genreId;
-
-      if (genreRes.rowCount === 0) {
-        genreRes = await client.query(`INSERT INTO genre(name) VALUES($1) RETURNING genre_id`, [genreName]);
-      }
-      genreId = genreRes.rows[0].genre_id;
-
-      await client.query(`INSERT INTO movie_genre(movie_id, genre_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [movieId, genreId]);
+      const genreId = await getOrCreateGenre(client, genreName);
+      await client.query(
+        `INSERT INTO movie_genre(movie_id, genre_id)
+     VALUES ($1, $2)
+     ON CONFLICT DO NOTHING`,
+        [movieId, genreId]
+      );
     }
 
     // Insert cast
@@ -111,6 +110,9 @@ export async function getMovieById(req, res) {
       last_updated = now()
 `, [movieId]);
 
+
+    await pool.query("SELECT decay_popularity($1)", ['movie']);
+
     const genresResult = await pool.query(`
       SELECT g.name FROM genre g
       JOIN movie_genre mg ON g.genre_id = mg.genre_id
@@ -164,8 +166,8 @@ export async function getTrendingMovies(req, res) {
       WHERE mp.last_updated >= NOW() - INTERVAL '1 day'
       ORDER BY mp.popularity DESC
       LIMIT 10
-    `);~
-    res.json(result.rows);
+    `); ~
+      res.json(result.rows);
   } catch (error) {
     console.error('Error fetching trending movies:', error);
     res.status(500).json({ error: 'Failed to fetch trending movies' });
@@ -217,6 +219,9 @@ export async function searchMovies(req, res) {
         `, [movie.movie_id, weight]);
       }
     }
+
+
+    await pool.query("SELECT decay_popularity($1)", ['movie']);
 
     res.json(result.rows);
   } catch (error) {

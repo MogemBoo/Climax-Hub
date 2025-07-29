@@ -17,6 +17,7 @@ import GetAll from './GetAll.jsx';
 import Login from './fakeLogin.jsx';
 import TopSeries from './TopSeries.jsx';
 import YourWatchlist from './YourWatchlist.jsx';
+import YourRatings from './YourRating.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/admin" element={<Admin />} />
         <Route path="/genre/:genre" element={<Genre />} />
         <Route path="/your-watchlist" element={<YourWatchlist />} />
+        <Route path="/your-ratings" element={<YourRatings />} />
         </Route>
       </Routes>
     </Router>

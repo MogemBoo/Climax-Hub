@@ -1,0 +1,103 @@
+/* Container */
+.ratings-container {
+  width: 100vw;
+  min-height: 100vh;
+  padding: 3rem 2rem;
+  background-color: #111;
+  color: #f1c40f;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Title */
+.ratings-title {
+  font-size: 2.4rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* Empty state */
+.ratings-empty {
+  color: #ccc;
+  font-size: 1.3rem;
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+/* Grid */
+.ratings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+/* Card */
+.ratings-card {
+  background: #1a1a1a;
+  border: 1px solid #f1c40f33;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ratings-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(241, 196, 15, 0.25);
+  background-color: #222;
+}
+
+/* Poster */
+.ratings-poster {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+/* Info */
+.ratings-info h3 {
+  font-size: 1.3rem;
+  margin: 0.4rem 0;
+  color: #f1c40f;
+}
+
+/* Stars */
+.stars-container {
+  margin: 0.5rem 0;
+}
+.star {
+  font-size: 1.2rem;
+  color: #444;
+  transition: color 0.3s;
+}
+.star.filled {
+  color: #ffd700;
+}
+
+/* Comment box */
+.ratings-comment-box {
+  background: #222;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin: 0.8rem 0;
+  color: #f9f9f9;
+  font-style: italic;
+  border: 1px solid #333;
+}
+
+.ratings-comment {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Date */
+.ratings-date {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.5rem;
+}

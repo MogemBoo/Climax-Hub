@@ -4,8 +4,7 @@ import {
     getPosts,
     updatePost,
     deletePost,
-    upvotePost,
-    downvotePost,
+    votePost
 } from "../controllers/postController.js";
 
 import {
@@ -20,8 +19,7 @@ router.post("/", createPost);
 router.get("/", getPosts);
 router.put("/:postId", updatePost);
 router.delete("/:postId", deletePost);
-router.post("/:post_id/upvote", upvotePost);
-router.post("/:post_id/downvote", downvotePost);
+router.post("/:post_id/vote", votePost);
 
 // Add comment to a post
 router.post("/:postId/comments", addComment);

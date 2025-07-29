@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import { getOrCreateGenre } from '../utils/helpers.js';
 
 export async function addFullSeries(req, res) {
   const {
@@ -30,12 +31,13 @@ export async function addFullSeries(req, res) {
 
     // Insert genres
     for (const genreName of genres || []) {
-      let genreRes = await client.query(`SELECT genre_id FROM genre WHERE name=$1`, [genreName]);
-      if (genreRes.rowCount === 0) {
-        genreRes = await client.query(`INSERT INTO genre(name) VALUES($1) RETURNING genre_id`, [genreName]);
-      }
-      const genreId = genreRes.rows[0].genre_id;
-      await client.query(`INSERT INTO series_genre(series_id, genre_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [seriesId, genreId]);
+      const genreId = await getOrCreateGenre(client, genreName);
+      await client.query(
+        `INSERT INTO series_genre(series_id, genre_id)
+     VALUES ($1, $2)
+     ON CONFLICT DO NOTHING`,
+        [seriesId, genreId]
+      );
     }
 
     // Insert cast
@@ -173,6 +175,8 @@ export async function getSeriesById(req, res) {
       last_updated = NOW()
 `, [seriesId]);
 
+    await pool.query("SELECT decay_popularity($1)", ['series']);
+
     res.json({
       ...series,
       genres: genresResult.rows.map(g => g.name),
@@ -233,6 +237,8 @@ LIMIT 20;
     `, [series.series_id, weight]);
       }
     }
+
+    await pool.query("SELECT decay_popularity($1)", ['series']);
 
     res.json(result.rows);
   } catch (error) {
