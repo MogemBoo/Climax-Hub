@@ -15,6 +15,7 @@ import {
 
 const router = express.Router();
 
+router.get('/coming-soon', getComingSoonMovies);
 router.get('/trending', getTrendingMovies);
 router.post('/full', addFullMovie);
 router.get('/top', getTopRatedMovies);
@@ -25,6 +26,5 @@ router.get('/genre/:genre', getMoviesByGenre);
 router.get('/:id', getMovieById);
 router.get('/:id/per-star-user-count', getPerStarUserCount);
 router.get('/:id/reviews/:rating', getReviewsByRating);
-router.get('/coming-soon', getComingSoonMovies);
 
 export default router;
