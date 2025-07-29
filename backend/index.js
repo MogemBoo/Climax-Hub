@@ -11,6 +11,7 @@ import watchlistRoutes from './routes/watchlist.js';
 import recommendationsRoutes from './routes/recommendations.js';
 import postRoutes from './routes/posts.js';
 import reviewsRoutes from './routes/reviews.js';
+import genreRoutes from "./routes/genre.js";
 import cors from 'cors';
 
 
@@ -32,6 +33,7 @@ app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/reviews', reviewsRoutes);
+app.use("/api/genres", genreRoutes);
 
 app.get('/', (req, res) => {
   res.send('running');
