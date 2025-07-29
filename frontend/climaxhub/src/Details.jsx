@@ -13,14 +13,21 @@ const PersonImage = ({ src, alt }) => {
       src={imgSrc}
       onError={() => setImgSrc(PLACEHOLDER_IMG)}
       alt={alt}
-      style={{ width: '120px', height: '180px', objectFit: 'cover', borderRadius: '0.5rem', marginBottom: '0.5rem', background: '#222', display: 'block' }}
+      style={{
+        width: '120px',
+        height: '180px',
+        objectFit: 'cover',
+        borderRadius: '0.5rem',
+        marginBottom: '0.5rem',
+        background: '#222',
+        display: 'block'
+      }}
     />
   );
 };
 
 const CommentCard = ({ review }) => {
   const [expanded, setExpanded] = useState(false);
-
   const isLongComment = review.comments && review.comments.length > 150;
   const hasComment = review.comments && review.comments.trim() !== "";
 
@@ -28,13 +35,11 @@ const CommentCard = ({ review }) => {
     <div className="comment-card">
       <h4 className="comment-username">👤 {review.username}</h4>
       <p className="comment-rating">⭐ {review.rating}/10</p>
-
       {hasComment && (
         <>
           <p className={`comment-text ${expanded ? "expanded" : ""}`} title={expanded ? "" : review.comments}>
             "{review.comments}"
           </p>
-
           {isLongComment && (
             <button
               className="see-more-btn"
@@ -46,7 +51,6 @@ const CommentCard = ({ review }) => {
           )}
         </>
       )}
-
       <p className="comment-date">
         {new Date(review.created_at).toLocaleDateString('en-US')}
       </p>
@@ -65,7 +69,7 @@ const Details = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const commentScrollRef = useRef(null);
-  const ratingPopupRef = useRef(null); // <-- add ref
+  const ratingPopupRef = useRef(null);
 
   const fetchDetails = async () => {
     const isSeries = location.pathname.includes('/series/');
@@ -110,7 +114,6 @@ const Details = () => {
   const handleToggleRatingCard = () => {
     const newState = !showRatingCard;
     setShowRatingCard(newState);
-
     if (newState) {
       fetchUserRating();
     }
@@ -151,7 +154,6 @@ const Details = () => {
       return;
     }
 
-    // Determine if this is a movie or series review
     const isSeries = location.pathname.includes('/series/');
     const endpoint = isSeries ? 'series' : 'movie';
     const idKey = isSeries ? 'series_id' : 'movie_id';
@@ -177,8 +179,7 @@ const Details = () => {
       setShowRatingCard(false);
       setHoverRating(0);
       setComment("");
-      // setUserRating(0); // Uncomment if you want to clear selected rating
-      fetchDetails(); // Reload reviews
+      fetchDetails();
     } catch (err) {
       alert("Failed to submit rating: " + err.message);
     }
@@ -188,7 +189,6 @@ const Details = () => {
     navigate(`/genre/${encodeURIComponent(genre)}`);
   };
 
-  // Close rating popup when clicking outside
   useEffect(() => {
     if (!showRatingCard) return;
     function handleClickOutside(e) {
@@ -221,8 +221,8 @@ const Details = () => {
             <p className="desc">{data.description}</p>
             <div className="tags">
               {(data.genres || []).map((g, i) => (
-                <button 
-                  className="tag genre-btn" 
+                <button
+                  className="tag genre-btn"
                   key={i}
                   onClick={() => handleGenreClick(g)}
                 >
@@ -304,33 +304,70 @@ const Details = () => {
       <div className="background-blur" style={{ backgroundImage: `url(${data.poster_url})` }}></div>
 
       <div className="extras">
+        {/* Show Series Episodes Only If Type is Series */}
+        {type === 'series' && (
+          <>
+            <h2 className="section-title">Series Episodes</h2>
+            <div className="episodes-grid">
+              {(data.episodes || []).map((episode) => (
+                <button
+                  key={episode.episode_id}
+                  className="episode-card"
+                  type="button"
+                  onClick={() => navigate(`/episode/${episode.episode_id}`)}
+                >
+                  <img
+                    src={episode.thumbnail_url || PLACEHOLDER_IMG}
+                    alt={episode.title}
+                    className="episode-thumbnail"
+                  />
+                  <h4>{episode.title}</h4>
+                  <p className="episode-info">
+                    Episode {episode.episode_number} • {episode.duration} min
+                  </p>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
         <h2 className="section-title">{type} Cast</h2>
         <div className="people-grid">
           {(data.cast || []).map(person => (
-            <div className="person-card" key={person.person_id}>
+            <button
+              key={person.person_id}
+              className="person-card"
+              type="button"
+              onClick={() => navigate(`/person/${person.person_id}`)}
+            >
               <PersonImage src={person.profile_img_url} alt={person.name} />
               <h4>{person.name}</h4>
               <p className="role">{person.character_name}</p>
-            </div>
+            </button>
           ))}
         </div>
 
         <h2 className="section-title">{type} Crew</h2>
         <div className="people-grid">
           {(data.crew || []).map(person => (
-            <div className="person-card" key={person.person_id}>
+            <button
+              key={person.person_id}
+              className="person-card"
+              type="button"
+              onClick={() => navigate(`/person/${person.person_id}`)}
+            >
               <PersonImage src={person.profile_img_url} alt={person.name} />
               <h4>{person.name}</h4>
               <p className="role">{person.role}</p>
-            </div>
+            </button>
           ))}
         </div>
 
         <h2 className="section-title">User Comments</h2>
         {(data.reviews || []).filter(r => r.comments && r.comments.trim() !== "").length > 0 ? (
           <div className="comments-scroll-container">
-            <button 
-              className="scroll-arrow left" 
+            <button
+              className="scroll-arrow left"
               onClick={() => commentScrollRef.current?.scrollBy({ left: -300, behavior: "smooth" })}
             >
               ←
@@ -340,8 +377,8 @@ const Details = () => {
                 <CommentCard key={review.review_id} review={review} />
               ))}
             </div>
-            <button 
-              className="scroll-arrow right" 
+            <button
+              className="scroll-arrow right"
               onClick={() => commentScrollRef.current?.scrollBy({ left: 300, behavior: "smooth" })}
             >
               →

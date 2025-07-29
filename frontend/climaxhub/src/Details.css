@@ -589,3 +589,53 @@ h1 {
     max-width: 90vw;
   }
 }
+
+.episodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.episode-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.7rem;
+  border-radius: 0.8rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.episode-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+}
+
+.episode-card:active {
+  transform: scale(0.97);
+}
+
+.episode-thumbnail {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: #222;
+}
+
+.episode-card h4 {
+  font-size: 1rem;
+  margin: 0.5rem 0 0.2rem;
+  color: #fff;
+}
+
+.episode-info {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
