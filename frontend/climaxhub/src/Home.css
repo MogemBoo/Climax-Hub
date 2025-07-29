@@ -443,3 +443,7 @@
     padding: 1rem;
   }
 }
+.highlight-title {
+  color: #ff9800; /* Orange for coming soon */
+  font-weight: bold;
+}

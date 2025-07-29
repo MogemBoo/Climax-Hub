@@ -1,6 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
+const formatDate = (dateString) => {
+  if (!dateString) return "Unknown";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 
 let debounceTimer = null;
 
@@ -12,6 +21,11 @@ const HomePage = () => {
   const [recentSeries, setRecentSeries] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [currentTrendingIndex, setCurrentTrendingIndex] = useState(0);
+  const [watchlist, setWatchlist] = useState([]);
+  const [comingSoon, setComingSoon] = useState([]);
+  const [ongoingSeries, setOngoingSeries] = useState([]);
+
+
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -33,6 +47,21 @@ const HomePage = () => {
       .then((res) => res.json())
       .then((data) => setTrendingMovies(data))
       .catch((err) => console.error("Error fetching trending movies:", err));
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch(`http://localhost:5000/api/watchlist/${user.user_id}`)
+      .then((res) => res.json())
+      .then((data) => setWatchlist(data || []))
+      .catch((err) => console.error("Error fetching watchlist:", err));
+  }, [user]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/series/ongoing") // <-- your API endpoint
+      .then((res) => res.json())
+      .then((data) => setOngoingSeries(data || []))
+      .catch((err) => console.error("Error fetching ongoing series:", err));
   }, []);
 
   // Auto rotate trending movie every 5 seconds (was 2 seconds)
@@ -62,6 +91,12 @@ const HomePage = () => {
       .then((res) => res.json())
       .then((data) => setRecentMovies(data))
       .catch((err) => console.error("Error fetching recent movies:", err));
+  }, []);
+  useEffect(() => {
+    fetch("http://localhost:5000/api/movies/coming-soon")
+      .then((res) => res.json())
+      .then((data) => setComingSoon(data))
+      .catch((err) => console.error("Error fetching coming soon movies:", err));
   }, []);
 
   useEffect(() => {
@@ -121,6 +156,7 @@ const HomePage = () => {
     return () => document.removeEventListener("click", closeDropdown);
   }, []);
 
+
   return (
     <div className="homepage-container">
       {/* Trending Section */}
@@ -129,8 +165,6 @@ const HomePage = () => {
         currentIndex={currentTrendingIndex}
         onCardClick={(id) => handleCardClick("movies", id)}
       />
-
-      {/* Recommended Section (only if user logged in) */}
       {user && (
         <>
           <Section
@@ -153,7 +187,7 @@ const HomePage = () => {
         </>
       )}
 
-      {/* Recent Sections */}
+
       <Section
         title="Recently Released Movies"
         data={recentMovies}
@@ -169,14 +203,37 @@ const HomePage = () => {
         onCardClick={(type, id) => handleCardClick("series", id)}
         isSeries
       />
+
+      <Section
+        title="Ongoing Series"
+        data={ongoingSeries}
+        scrollRef={useRef(null)}
+        onCardClick={(type, id) => handleCardClick("series", id)}
+        isSeries={true}
+      />
+      <Section
+        title="Coming Soon!"
+        data={comingSoon}
+        scrollRef={useRef(null)}
+        onCardClick={(type, id) => handleCardClick("movies", id)}
+        isSeries={false}
+      />
+      {user && (
+        <Section
+          title="From Your Watchlist"
+          data={watchlist}
+          scrollRef={useRef(null)}
+          onCardClick={(type, id) => handleCardClick("movies", id)}
+          isSeries={false} // Assuming watchlist is movies; change to true if series
+        />
+      )}
+
     </div>
   );
 };
 
 const TrendingSection = ({ movies, currentIndex, onCardClick }) => {
   if (!movies.length) return null;
-
-  // If only one movie, show only the big screen and no up next
   if (movies.length === 1) {
     const currentMovie = movies[0];
     return (
@@ -286,7 +343,7 @@ const Section = ({
   isRecommendation = false,
 }) => (
   <div className="section">
-    <h2 className="section-title">{title}</h2>
+    <h2 className={`section-title ${title === "Coming Soon!" ? "highlight-title" : ""}`}>{title}</h2>
     <div className="scroll-container">
       <button
         className="scroll-arrow left"
@@ -349,7 +406,7 @@ const MovieList = ({
         <div>
           <h3 className="movie-title">{movie.title}</h3>
           <p className="movie-info">Rating: {movie.rating}</p>
-          <p className="movie-info">Released: {movie.release_date}</p>
+          <p className="movie-info">Released: {formatDate(movie.release_date)}</p>
         </div>
       </div>
     ))}
@@ -378,7 +435,7 @@ const SeriesList = ({
         <div>
           <h3 className="movie-title">{s.title}</h3>
           <p className="movie-info">Rating: {s.rating}</p>
-          <p className="movie-info">Start Date: {s.start_date}</p>
+          <p className="movie-info">Start Date: {formatDate(s.start_date)}</p>
         </div>
       </div>
     ))}
