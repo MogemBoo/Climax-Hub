@@ -8,6 +8,7 @@ import Community from './Community.jsx';
 import Admin from './Admin.jsx';
 import Genre from './Genre.jsx';
 import Episodes from './Episodes.jsx';
+import SearchResult from './SearchResult.jsx';
 
 
 import './index.css';
@@ -19,10 +20,12 @@ import Login from './fakeLogin.jsx';
 import TopSeries from './TopSeries.jsx';
 import YourWatchlist from './YourWatchlist.jsx';
 import YourRatings from './YourRating.jsx';
+import ScrollToTop from './ScrollToTop.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout />}>
         <Route path="/" element={<HomePage />} />
@@ -40,6 +43,9 @@ createRoot(document.getElementById('root')).render(
         <Route path="/your-watchlist" element={<YourWatchlist />} />
         <Route path="/your-ratings" element={<YourRatings />} />
         <Route path="/series/:id/episodes" element={<Episodes />} />
+        <Route path="/search" element={<SearchResult />} />
+        
+
         </Route>
       </Routes>
     </Router>
