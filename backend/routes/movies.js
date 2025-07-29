@@ -9,7 +9,8 @@ import {
     getPerStarUserCount,
     getReviewsByRating,
     getTrendingMovies,
-    getMoviesByGenre
+    getMoviesByGenre,
+    getComingSoonMovies
 } from '../controllers/moviesController.js';
 
 const router = express.Router();
@@ -24,5 +25,6 @@ router.get('/genre/:genre', getMoviesByGenre);
 router.get('/:id', getMovieById);
 router.get('/:id/per-star-user-count', getPerStarUserCount);
 router.get('/:id/reviews/:rating', getReviewsByRating);
+router.get('/coming-soon', getComingSoonMovies);
 
 export default router;

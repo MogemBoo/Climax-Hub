@@ -9,7 +9,8 @@ import {
 
 import {
     addComment,
-    getComments
+    getComments,
+    deleteComment
 } from "../controllers/commentsController.js";
 
 const router = express.Router();
@@ -26,5 +27,8 @@ router.post("/:postId/comments", addComment);
 
 // Get comments for a post
 router.get("/:postId/comments", getComments);
+
+//delete comment
+router.delete("/:comment_id", deleteComment);
 
 export default router;

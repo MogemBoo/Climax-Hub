@@ -427,3 +427,37 @@ export async function getSeriesByGenre(req, res) {
     res.status(500).json({ error: 'Failed to fetch series by genre' });
   }
 }
+
+// get series that are coming soon
+export async function getComingSoonSeries(req, res) {
+  try {
+    const result = await pool.query(`
+      SELECT series_id, title, TO_CHAR(start_date, 'DD-MM-YYYY') AS start_date, poster_url, description
+      FROM series
+      WHERE start_date > NOW()
+      ORDER BY start_date ASC
+      LIMIT 10
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching coming soon series:', error);
+    res.status(500).json({ error: 'Failed to fetch coming soon series' });
+  }
+}
+
+//get ongoing series
+export async function getOngoingSeries(req, res) {
+  try {
+    const result = await pool.query(`
+      SELECT series_id, title, TO_CHAR(start_date, 'DD-MM-YYYY') AS start_date, poster_url, description
+      FROM series
+      WHERE end_date IS NULL
+      ORDER BY start_date DESC
+      LIMIT 10
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching ongoing series:', error);
+    res.status(500).json({ error: 'Failed to fetch ongoing series' });
+  }
+}

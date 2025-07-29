@@ -354,3 +354,34 @@ export const getMoviesByGenre = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch movies by genre' });
   }
 }
+
+// Movies that are coming soon, with release date > current date
+export async function getComingSoonMovies(req, res) {
+  try {
+    const result = await pool.query(`
+      SELECT movie_id, title, release_date, ROUND(rating::numeric,1) AS rating, poster_url
+      FROM movie
+      WHERE release_date > CURRENT_DATE
+      ORDER BY release_date ASC
+      LIMIT 20
+    `);
+
+    // Format release_date as dd-mm-yyyy
+    const movies = result.rows.map(movie => {
+      const date = new Date(movie.release_date);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+
+      return {
+        ...movie,
+        release_date: `${day}-${month}-${year}`
+      };
+    });
+
+    res.json(movies);
+  } catch (error) {
+    console.error('Error fetching coming soon movies:', error);
+    res.status(500).json({ error: 'Failed to fetch coming soon movies' });
+  }
+}
