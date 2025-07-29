@@ -443,6 +443,34 @@ const Details = () => {
             {selectedRating !== null ? `No comments for ${selectedRating} stars.` : `No comments yet. Be the first to review this ${type}!`}
           </p>
         )}
+
+        {/* Episodes Section */}
+{type === 'series' && data.seasons && data.seasons.length > 0 && (
+  <>
+    <h2 className="section-title">
+      Episodes ({data.seasons.reduce((acc, s) => acc + (s.episodes ? s.episodes.length : 0), 0)})
+    </h2>
+    <div className="top-episodes">
+      {data.seasons
+        .flatMap(s => s.episodes || [])
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, 2)
+        .map(ep => (
+          <div key={ep.episode_id} className="top-episode">
+            <strong>Episode {ep.episode_number}: {ep.title}</strong>
+            {ep.rating && <span className="episode-rating">⭐ {ep.rating}</span>}
+          </div>
+        ))}
+    </div>
+    <button
+      className="view-episodes-btn"
+      onClick={() => navigate(`/series/${id}/episodes`)}
+    >
+      View All Episodes
+    </button>
+  </>
+)}
+
       </div>
     </div>
   );

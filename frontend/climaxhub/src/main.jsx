@@ -7,6 +7,7 @@ import YourProfile from './YourProfile.jsx';
 import Community from './Community.jsx';
 import Admin from './Admin.jsx';
 import Genre from './Genre.jsx';
+import Episodes from './Episodes.jsx';
 
 
 import './index.css';
@@ -38,6 +39,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/genre/:genre" element={<Genre />} />
         <Route path="/your-watchlist" element={<YourWatchlist />} />
         <Route path="/your-ratings" element={<YourRatings />} />
+        <Route path="/series/:id/episodes" element={<Episodes />} />
         </Route>
       </Routes>
     </Router>
