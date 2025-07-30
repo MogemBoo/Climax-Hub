@@ -254,7 +254,7 @@ export async function getRecentMovies(req, res) {
 
       return {
         ...movie,
-        release_date: `${day}-${month}-${year}`
+        release_date: `${day}-${month}-${year}`,
       };
     });
 

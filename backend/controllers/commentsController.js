@@ -53,7 +53,7 @@ export const getComments = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT c.comment_id, c.post_id, c.content, c.created_at,c.user_id,
-              u.username, u.pfp
+              u.username, u.pfp, u.user_id
        FROM post_comment c
        JOIN users u ON c.user_id = u.user_id
        WHERE c.post_id = $1

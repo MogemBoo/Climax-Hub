@@ -5,7 +5,9 @@ import {
     updatePost,
     deletePost,
     votePost,
-    createPoll
+    createPoll,
+    votePoll,
+    getPostById
 } from "../controllers/postController.js";
 
 import {
@@ -24,7 +26,9 @@ router.post("/", createPost);
 router.get("/", getPosts);
 router.put("/:postId", updatePost);
 router.delete("/:postId", deletePost);
+router.get("/:postId", getPostById);
 router.post("/:post_id/vote", votePost);
+router.post("/:postId/poll-vote", votePoll);
 // Add comment to a post
 router.post("/:postId/comments", addComment);
 
@@ -32,6 +36,6 @@ router.post("/:postId/comments", addComment);
 router.get("/:postId/comments", getComments);
 
 //delete comment
-router.delete("/:comment_id", deleteComment);
+router.delete("/:postId/comments/:commentId", deleteComment);
 
 export default router;

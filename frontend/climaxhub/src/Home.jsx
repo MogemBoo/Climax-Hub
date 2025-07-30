@@ -43,6 +43,9 @@ const HomePage = () => {
   const recentMovieScrollRef = useRef(null);
   const recentSeriesScrollRef = useRef(null);
   const recentlyViewedScrollRef = useRef(null);
+  const ongoingSeriesScrollRef = useRef(null);
+  const comingSoonScrollRef = useRef(null);
+  const watchlistScrollRef = useRef(null);
 
   // Fetch trending movies
   useEffect(() => {
@@ -187,30 +190,30 @@ const HomePage = () => {
             isSeries={false}
           />
 
-          
+
         </>
       )}
 
       {user && recommendedSeries.length > 0 && (
-  <Section
-    title="Recommended Series for You"
-    data={recommendedSeries}
-    scrollRef={recSeriesScrollRef}
-    onCardClick={(type, id) => handleCardClick("series", id)}
-    isRecommendation
-    isSeries
-  />
-)}
+        <Section
+          title="Recommended Series for You"
+          data={recommendedSeries}
+          scrollRef={recSeriesScrollRef}
+          onCardClick={(type, id) => handleCardClick("series", id)}
+          isRecommendation
+          isSeries
+        />
+      )}
 
       {user && recentlyViewed.length > 0 && (
-  <Section
-    title="Recently Viewed"
-    data={recentlyViewed}
-    scrollRef={recentlyViewedScrollRef}
-    onCardClick={(type, id) => handleCardClick(type, id)}
-    isSeries={false}
-  />
-)}
+        <Section
+          title="Recently Viewed"
+          data={recentlyViewed}
+          scrollRef={recentlyViewedScrollRef}
+          onCardClick={(type, id) => handleCardClick(type, id)}
+          isSeries={false}
+        />
+      )}
 
 
       <Section
@@ -230,46 +233,46 @@ const HomePage = () => {
       />
 
       {ongoingSeries.length > 0 && (
-  <Section
-    title="Ongoing Series"
-    data={ongoingSeries}
-    scrollRef={useRef(null)}
-    onCardClick={(type, id) => handleCardClick("series", id)}
-    isSeries={true}
-  />
-)}
+        <Section
+          title="Ongoing Series"
+          data={ongoingSeries}
+          scrollRef={ongoingSeriesScrollRef}
+          onCardClick={(type, id) => handleCardClick("series", id)}
+          isSeries={true}
+        />
+      )}
 
       {comingSoon.length > 0 && (
-  <Section
-    title="Coming Soon!"
-    data={comingSoon}
-    scrollRef={useRef(null)}
-    onCardClick={(type, id) => handleCardClick("movies", id)}
-    isSeries={false}
-  />
-)}
+        <Section
+          title="Coming Soon!"
+          data={comingSoon}
+          scrollRef={comingSoonScrollRef}
+          onCardClick={(type, id) => handleCardClick("movies", id)}
+          isSeries={false}
+        />
+      )}
       {user && (
-  watchlist.length > 0 ? (
-    <Section
-      title="From Your Watchlist"
-      data={watchlist}
-      scrollRef={useRef(null)}
-      onCardClick={(type, id) => handleCardClick("movies", id)}
-      isSeries={false} // Assuming watchlist is movies; change if needed
-    />
-  ) : (
-    <div style={{ textAlign: "center", color: "#aaa", marginTop: "1rem" }}>
-      <Section
-      title="From Your Watchlist"
-      data={watchlist}
-      scrollRef={useRef(null)}
-      onCardClick={(type, id) => handleCardClick("movies", id)}
-      isSeries={false} // Assuming watchlist is movies; change if needed
-    />
-      No watchlist movies added yet.
-    </div>
-  )
-)}
+        watchlist.length > 0 ? (
+          <Section
+            title="From Your Watchlist"
+            data={watchlist}
+            scrollRef={watchlistScrollRef}
+            onCardClick={(type, id) => handleCardClick("movies", id)}
+            isSeries={false} // Assuming watchlist is movies; change if needed
+          />
+        ) : (
+          <div style={{ textAlign: "center", color: "#aaa", marginTop: "1rem" }}>
+            <Section
+              title="From Your Watchlist"
+              data={watchlist}
+              scrollRef={watchlistScrollRef}
+              onCardClick={(type, id) => handleCardClick("movies", id)}
+              isSeries={false} // Assuming watchlist is movies; change if needed
+            />
+            No watchlist movies added yet.
+          </div>
+        )
+      )}
 
 
     </div>
@@ -424,65 +427,53 @@ const Section = ({
   </div>
 );
 
-const MovieList = ({
-  movies,
-  scrollRef,
-  onCardClick,
-  isRecommendation = false,
-}) => (
+const MovieList = ({ movies, scrollRef, onCardClick, isRecommendation = false }) => (
   <div className="movie-horizontal-scroll" ref={scrollRef}>
-    {movies.map((movie) => (
-      <div
-        key={isRecommendation ? movie.recommended_movie_id : movie.movie_id}
-        className="movie-scroll-card"
-        onClick={() =>
-          onCardClick(
-            "movies",
-            isRecommendation ? movie.recommended_movie_id : movie.movie_id
-          )
-        }
-      >
-        <img
-          src={movie.poster_url}
-          alt={movie.title}
-          className="movie-scroll-poster"
-        />
-        <div>
-          <h3 className="movie-title">{movie.title}</h3>
-          <p className="movie-info">Rating: {movie.rating}</p>
-          <p className="movie-info">Released: {formatDate(movie.release_date)}</p>
+    {movies.map((movie) => {
+      const id = movie.item_id || movie.movie_id || movie.recommended_movie_id;
+      const type = movie.type || "movies"; // Use `type` from backend if available
+      return (
+        <div
+          key={id}
+          className="movie-scroll-card"
+          onClick={() => onCardClick(type, id)}
+        >
+          <img
+            src={movie.poster_url}
+            alt={movie.title}
+            className="movie-scroll-poster"
+          />
+          <div>
+            <h3 className="movie-title">{movie.title}</h3>
+            <p className="movie-info">Rating: {movie.rating}</p>
+            <p className="movie-info">Released: {formatDate(movie.release_date)}</p>
+          </div>
         </div>
-      </div>
-    ))}
+      );
+    })}
   </div>
 );
 
-const SeriesList = ({
-  series,
-  scrollRef,
-  onCardClick,
-  isRecommendation = false,
-}) => (
+const SeriesList = ({ series, scrollRef, onCardClick, isRecommendation = false }) => (
   <div className="movie-horizontal-scroll" ref={scrollRef}>
-    {series.map((s) => (
-      <div
-        key={isRecommendation ? s.recommended_series_id : s.series_id}
-        className="movie-scroll-card"
-        onClick={() =>
-          onCardClick(
-            "series",
-            isRecommendation ? s.recommended_series_id : s.series_id
-          )
-        }
-      >
-        <img src={s.poster_url} alt={s.title} className="movie-scroll-poster" />
-        <div>
-          <h3 className="movie-title">{s.title}</h3>
-          <p className="movie-info">Rating: {s.rating}</p>
-          <p className="movie-info">Start Date: {formatDate(s.start_date)}</p>
+    {series.map((s) => {
+      const id = s.item_id || s.series_id || s.recommended_series_id;
+      const type = s.type || "series"; // Use `type` from backend if available
+      return (
+        <div
+          key={id}
+          className="movie-scroll-card"
+          onClick={() => onCardClick(type, id)}
+        >
+          <img src={s.poster_url} alt={s.title} className="movie-scroll-poster" />
+          <div>
+            <h3 className="movie-title">{s.title}</h3>
+            <p className="movie-info">Rating: {s.rating}</p>
+            <p className="movie-info">Start Date: {formatDate(s.start_date)}</p>
+          </div>
         </div>
-      </div>
-    ))}
+      );
+    })}
   </div>
 );
 

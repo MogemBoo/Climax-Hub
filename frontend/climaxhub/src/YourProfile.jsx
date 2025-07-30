@@ -307,13 +307,13 @@ const YourProfile = () => {
             <button className="add-post-btn" onClick={() => setShowPostPopup(true)}>
               ➕ Add Post
             </button>
-            <button
+            {/* <button
               className="add-post-btn"
               style={{ marginLeft: "10px" }}
               onClick={() => setShowPollPopup(true)}
             >
               📊 Create Poll
-            </button>
+            </button> */}
           </div>
         </div>
 
