@@ -26,7 +26,7 @@
   width: 100%;
   justify-content: center;
   flex: 1;
-  margin-left: -13rem;
+  margin-left: -15rem;
   margin-top: 2px;
 }
 
@@ -251,3 +251,33 @@
   opacity: 0.8;
   margin-top: 2px;
 }
+
+.logo-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  outline: none;            /* remove focus outline */
+}
+
+.logo-btn:focus {
+  outline: none;            /* extra safety */
+  box-shadow: none;         /* remove any focus glow */
+}
+
+
+.logo-img {
+  width: 40px;   /* adjust as needed */
+  height: 40px;  /* adjust as needed */
+  object-fit: contain;
+  border-radius: 6px;
+  transition: transform 0.2s ease;
+  margin-right: 0.5rem;
+}
+
+.logo-btn:hover .logo-img {
+  transform: scale(1.05);
+}
+

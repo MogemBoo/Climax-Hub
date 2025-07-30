@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./TopBar.css"; // reuse your existing styles
-
+import "./TopBar.css";
+import logo from "./assets/logo.png";
 const TopBar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(() => {
@@ -147,6 +147,15 @@ const TopBar = () => {
       </div>
 
       <form onSubmit={handleSearchSubmit} className="center-search-form" ref={searchInputRef} style={{ position: "relative" }}>
+        <button
+  type="button"
+  className="logo-btn"
+  onClick={() => navigate("/")}
+  style={{ marginRight: "0.5rem" }}
+>
+  <img src={logo} alt="Home" className="logo-img" />
+</button>
+
         {user && user.is_admin && (
           <button type="button" className="admin-btn" onClick={() => navigate("/admin")} style={{ marginRight: "0.5rem" }}>
             Admin

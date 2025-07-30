@@ -5,6 +5,15 @@ import verifiedIcon from "../verified.png";
 
 
 const Community = () => {
+  const [showPostPopup, setShowPostPopup] = useState(false);
+  const [showPollPopup, setShowPollPopup] = useState(false);
+
+  const [newPostTitle, setNewPostTitle] = useState("");
+  const [newPostContent, setNewPostContent] = useState("");
+
+  const [pollTitle, setPollTitle] = useState("");
+  const [pollOptions, setPollOptions] = useState([""]);
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,6 +70,27 @@ const Community = () => {
     }
   };
 
+  const handlePollVote = async (postId, optionIndex) => {
+    if (!user) return alert("Please login to vote in the poll");
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${postId}/poll-vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.user_id, option_index: optionIndex }),
+      });
+      if (!res.ok) throw new Error("Failed to vote in poll");
+      const updatedPoll = await res.json();
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.post_id === postId ? { ...p, poll_options: updatedPoll.poll_options } : p
+        )
+      );
+    } catch (err) {
+      alert("Failed to vote in poll: " + err.message);
+    }
+  };
+
+
   const handleDelete = async (postId, userId) => {
     if (!user) return alert("Please login to delete a post");
     if (user.is_admin !== true && user.user_id !== userId) return alert("You do not have permission to delete this post");
@@ -81,6 +111,62 @@ const Community = () => {
       alert("Failed to delete post: " + err.message);
     }
   };
+  const handleAddPost = async () => {
+    if (!newPostTitle.trim() || !newPostContent.trim()) {
+      alert("Title and content are required.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          title: newPostTitle,
+          content: newPostContent,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to post");
+      const newPost = await res.json();
+      setPosts((prev) => [newPost, ...prev]);
+      setShowPostPopup(false);
+      setNewPostTitle("");
+      setNewPostContent("");
+    } catch (err) {
+      alert("Error adding post: " + err.message);
+    }
+  };
+
+  const handleCreatePoll = async () => {
+    if (!pollTitle.trim() || pollOptions.some((opt) => !opt.trim())) {
+      alert("Poll title and all options are required.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/posts/polls", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          title: pollTitle,
+          options: pollOptions,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to create poll");
+      const newPoll = await res.json();
+      setPosts((prev) => [newPoll, ...prev]);
+      setShowPollPopup(false);
+      setPollTitle("");
+      setPollOptions([""]);
+    } catch (err) {
+      alert("Error creating poll: " + err.message);
+    }
+  };
+
 
   const handleCommentSubmit = async (postId) => {
     if (!user) return alert("Please login to comment");
@@ -135,6 +221,20 @@ const Community = () => {
       <h1 className="community-title">Community</h1>
       {loading && <p>Loading posts...</p>}
       {error && <p className="community-error">{error}</p>}
+      <div className="community-header">
+        {user && (
+          <div className="community-actions">
+            <button className="action-btn" onClick={() => setShowPostPopup(true)}>
+              ➕ Add Post
+            </button>
+            <button className="action-btn" onClick={() => setShowPollPopup(true)}>
+              📊 Create Poll
+            </button>
+          </div>
+        )}
+      </div>
+
+
       <div className="community-posts-list">
         {posts.length === 0 && !loading && !error && (
           <p className="community-empty">No posts yet.</p>
@@ -144,6 +244,8 @@ const Community = () => {
           const expanded = expandedPosts[idx];
           const showCommentFormForPost = showCommentForm[post.post_id];
           const commentText = commentTexts[post.post_id] || "";
+          const isPoll = post.type === "poll";
+
 
           return (
             <div className="community-post-card" key={idx}>
@@ -167,6 +269,19 @@ const Community = () => {
                 </button>
               )}
               {/*delete*/}
+              {isPoll && post.poll_options?.length > 0 && (
+                <div className="poll-options">
+                  {post.poll_options.map((opt, i) => (
+                    <button
+                      key={i}
+                      className={`poll-option-btn ${opt.voted ? "selected" : ""}`}
+                      onClick={() => handlePollVote(post.post_id, i)}
+                    >
+                      {opt.text} ({opt.votes})
+                    </button>
+                  ))}
+                </div>
+              )}
 
 
               {/* Voting Section */}
@@ -194,10 +309,10 @@ const Community = () => {
                   💬 Comment
                 </button>
                 {user && (user.user_id == post.user_id || (user.is_admin)) && (
-                <button className="delete-toggle-btn" onClick={() => handleDelete(post.post_id, post.user_id)}>
-                  Delete
-                </button>
-                  )}
+                  <button className="delete-toggle-btn" onClick={() => handleDelete(post.post_id, post.user_id)}>
+                    Delete
+                  </button>
+                )}
                 {showCommentFormForPost && (
                   <div className="comment-form">
                     <textarea
@@ -255,7 +370,7 @@ const Community = () => {
                             <img src={verifiedIcon} alt="User" className="checkmark-icon" />
                           )}
                         </div>
-                        
+
                         <div className="comment-content">{comment.content}</div>
                         <div className="comment-date">
                           {new Date(comment.created_at).toLocaleDateString()}
@@ -278,7 +393,81 @@ const Community = () => {
         })}
       </div>
 
-      {/* Modal */}
+      {showPostPopup && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+            <h3>Create New Post</h3>
+            <input
+              type="text"
+              placeholder="Post title"
+              value={newPostTitle}
+              onChange={(e) => setNewPostTitle(e.target.value)}
+              className="popup-input"
+            />
+            <textarea
+              placeholder="Write your content..."
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
+              className="popup-textarea"
+              rows={5}
+            />
+            <div className="popup-buttons">
+              <button className="popup-submit" onClick={handleAddPost}>Submit</button>
+              <button className="popup-cancel" onClick={() => setShowPostPopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPollPopup && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+            <h3>Create New Poll</h3>
+            <input
+              type="text"
+              placeholder="Poll title"
+              value={pollTitle}
+              onChange={(e) => setPollTitle(e.target.value)}
+              className="popup-input"
+            />
+            <div>
+              {pollOptions.map((opt, index) => (
+                <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "0.5rem" }}>
+                  <input
+                    type="text"
+                    value={opt}
+                    onChange={(e) => {
+                      const newOptions = [...pollOptions];
+                      newOptions[index] = e.target.value;
+                      setPollOptions(newOptions);
+                    }}
+                    placeholder={`Option ${index + 1}`}
+                    className="popup-input"
+                  />
+                  <button
+                    className="option-delete-btn"
+                    onClick={() => setPollOptions(pollOptions.filter((_, i) => i !== index))}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              className="add-post-btn"
+              style={{ marginBottom: "1rem" }}
+              onClick={() => setPollOptions([...pollOptions, ""])}
+            >
+              ➕ Add Option
+            </button>
+            <div className="popup-buttons">
+              <button className="popup-submit" onClick={handleCreatePoll}>Submit</button>
+              <button className="popup-cancel" onClick={() => setShowPollPopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {modalPost && (
         <div className="modal-overlay" onClick={closeModal}>
           <div

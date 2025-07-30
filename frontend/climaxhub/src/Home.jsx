@@ -176,7 +176,7 @@ const HomePage = () => {
         currentIndex={currentTrendingIndex}
         onCardClick={(id) => handleCardClick("movies", id)}
       />
-      {user && (
+      {user && recommendedMovies.length > 0 && (
         <>
           <Section
             title="Recommended Movies for You"
@@ -187,16 +187,20 @@ const HomePage = () => {
             isSeries={false}
           />
 
-          <Section
-            title="Recommended Series for You"
-            data={recommendedSeries}
-            scrollRef={recSeriesScrollRef}
-            onCardClick={(type, id) => handleCardClick("series", id)}
-            isRecommendation
-            isSeries
-          />
+          
         </>
       )}
+
+      {user && recommendedSeries.length > 0 && (
+  <Section
+    title="Recommended Series for You"
+    data={recommendedSeries}
+    scrollRef={recSeriesScrollRef}
+    onCardClick={(type, id) => handleCardClick("series", id)}
+    isRecommendation
+    isSeries
+  />
+)}
 
       {user && recentlyViewed.length > 0 && (
   <Section
@@ -225,29 +229,48 @@ const HomePage = () => {
         isSeries
       />
 
-      <Section
-        title="Ongoing Series"
-        data={ongoingSeries}
-        scrollRef={useRef(null)}
-        onCardClick={(type, id) => handleCardClick("series", id)}
-        isSeries={true}
-      />
-      <Section
-        title="Coming Soon!"
-        data={comingSoon}
-        scrollRef={useRef(null)}
-        onCardClick={(type, id) => handleCardClick("movies", id)}
-        isSeries={false}
-      />
+      {ongoingSeries.length > 0 && (
+  <Section
+    title="Ongoing Series"
+    data={ongoingSeries}
+    scrollRef={useRef(null)}
+    onCardClick={(type, id) => handleCardClick("series", id)}
+    isSeries={true}
+  />
+)}
+
+      {comingSoon.length > 0 && (
+  <Section
+    title="Coming Soon!"
+    data={comingSoon}
+    scrollRef={useRef(null)}
+    onCardClick={(type, id) => handleCardClick("movies", id)}
+    isSeries={false}
+  />
+)}
       {user && (
-        <Section
-          title="From Your Watchlist"
-          data={watchlist}
-          scrollRef={useRef(null)}
-          onCardClick={(type, id) => handleCardClick("movies", id)}
-          isSeries={false} // Assuming watchlist is movies; change to true if series
-        />
-      )}
+  watchlist.length > 0 ? (
+    <Section
+      title="From Your Watchlist"
+      data={watchlist}
+      scrollRef={useRef(null)}
+      onCardClick={(type, id) => handleCardClick("movies", id)}
+      isSeries={false} // Assuming watchlist is movies; change if needed
+    />
+  ) : (
+    <div style={{ textAlign: "center", color: "#aaa", marginTop: "1rem" }}>
+      <Section
+      title="From Your Watchlist"
+      data={watchlist}
+      scrollRef={useRef(null)}
+      onCardClick={(type, id) => handleCardClick("movies", id)}
+      isSeries={false} // Assuming watchlist is movies; change if needed
+    />
+      No watchlist movies added yet.
+    </div>
+  )
+)}
+
 
     </div>
   );
